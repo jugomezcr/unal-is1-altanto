@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Alertas de Insumos · Al-Tanto')}">
+    <meta charset="UTF-8">
+    <title>Alertas de Insumos</title>
+</head>
+<body class="bg-stone-50 text-stone-800 min-h-screen flex flex-col font-sans">
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <h1 class="text-2xl font-bold text-stone-900 mb-4">CU-02: Monitor de Alertas de Reabastecimiento</h1>
+        <p class="text-stone-600 mb-6">Insumos bajo el umbral mínimo de seguridad (canecas de harina y materias primas).</p>
+        <div class="bg-white p-6 rounded-xl border border-stone-200">
+            <p class="text-sm text-stone-500">Módulo en construcción para el Sprint 1.</p>
+        </div>
+    </main>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

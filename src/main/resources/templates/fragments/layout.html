@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(pageTitle)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle != null ? pageTitle + ' · Al-Tanto' : 'Al-Tanto · Panadería'}">Al-Tanto</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bakery: {
+                            50: '#fdf8f6',
+                            100: '#f2e8e5',
+                            500: '#b45309',
+                            700: '#78350f',
+                            900: '#451a03'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-stone-50 text-stone-800 min-h-screen flex flex-col font-sans">
+
+    <!-- Navegación y Cabecera -->
+    <header th:fragment="navbar" class="bg-white border-b border-stone-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Marca / Logo -->
+                <div class="flex items-center space-x-3">
+                    <a th:href="@{/}" class="flex items-center space-x-2">
+                        <span class="text-2xl">🥖</span>
+                        <div class="leading-tight">
+                            <span class="font-bold text-xl text-stone-900 tracking-tight">Al-Tanto</span>
+                            <span class="text-xs block text-amber-700 font-medium">Panadería Leonardo Betancur</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Enlaces de navegación -->
+                <nav class="hidden md:flex space-x-6 text-sm font-medium">
+                    <a th:href="@{/}" class="text-stone-700 hover:text-amber-700 transition">Inicio</a>
+                    <a th:href="@{/conciliacion}" class="text-stone-700 hover:text-amber-700 transition">Conciliación (CU-01)</a>
+                    <a th:href="@{/inventario/alertas}" class="text-stone-700 hover:text-amber-700 transition">Inventario & Alertas (CU-02)</a>
+                    <a th:href="@{/produccion/tandas}" class="text-stone-700 hover:text-amber-700 transition">Producción (CU-03)</a>
+                    <a th:href="@{/h2-console}" target="_blank" class="text-amber-700 hover:text-amber-800 transition flex items-center gap-1 font-semibold">
+                        <span>H2 Console</span>
+                        <span class="text-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">DB</span>
+                    </a>
+                </nav>
+
+                <!-- Estado del sistema -->
+                <div class="flex items-center space-x-3">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                        ● Operativo
+                    </span>
+                    <span class="text-xs text-stone-500 hidden sm:inline" th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy')}">Hoy</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Pie de página -->
+    <footer th:fragment="footer" class="mt-auto bg-stone-900 text-stone-400 py-6 text-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-2">
+                <span class="text-stone-300 font-semibold">Al-Tanto</span>
+                <span>— Sistema de Gestión y Conciliación Operativa de Panadería</span>
+            </div>
+            <div class="text-xs text-stone-500">
+                Ingeniería de Software I · Equipo Hefesto (Grupo 4) · UNAL 2026-II
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

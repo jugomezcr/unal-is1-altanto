@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Inicio · Sistema Al-Tanto')}">
+    <meta charset="UTF-8">
+    <title>Al-Tanto · Panadería</title>
+</head>
+<body class="bg-stone-50 text-stone-800 min-h-screen flex flex-col font-sans">
+
+    <!-- Cabecera compartida -->
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <!-- Contenido Principal -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <!-- Hero Banner -->
+        <section class="bg-gradient-to-r from-amber-700 via-amber-800 to-stone-900 rounded-2xl p-8 text-white shadow-lg mb-8">
+            <div class="max-w-3xl">
+                <span class="inline-block px-3 py-1 bg-amber-600/40 text-amber-200 rounded-full text-xs font-semibold tracking-wide uppercase mb-3">
+                    Ingeniería de Software I · Equipo Hefesto · Grupo 4
+                </span>
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">
+                    Al-Tanto — Panadería Leonardo Betancur
+                </h1>
+                <p class="text-amber-100 text-base sm:text-lg mb-6 leading-relaxed">
+                    Sistema integral de gestión y conciliación operativa para panaderías artesanales: control de mermas, balance de masa, monitoreo de canecas de harina y cuadre de caja con Reporte Z.
+                </p>
+                <div class="flex flex-wrap gap-3 text-xs">
+                    <span class="bg-stone-800/80 px-3 py-1.5 rounded-lg border border-stone-700 font-mono">
+                        ⚙️ Spring Boot 4.1.2 · Java 21 LTS
+                    </span>
+                    <span class="bg-stone-800/80 px-3 py-1.5 rounded-lg border border-stone-700 font-mono">
+                        🗄️ H2 Embedded (Modo Archivo: ./data/altanto.mv.db)
+                    </span>
+                    <span class="bg-stone-800/80 px-3 py-1.5 rounded-lg border border-stone-700 font-mono">
+                        🎨 Thymeleaf + Tailwind CSS
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tarjetas de Módulos Operativos (Sprint 1) -->
+        <section class="mb-10">
+            <h2 class="text-xl font-bold text-stone-900 mb-4 flex items-center gap-2">
+                <span>📋 Módulos Operativos Comprometidos</span>
+                <span class="text-xs bg-amber-100 text-amber-800 font-medium px-2 py-0.5 rounded-full">Sprint 1 / E4</span>
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Tarjeta CU-01: Conciliación Diaria -->
+                <div class="bg-white rounded-xl p-6 border border-stone-200 shadow-sm hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center text-2xl mb-4">
+                        ⚖️
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-700">CU-01 · Alta Prioridad</span>
+                    <h3 class="text-lg font-bold text-stone-900 mt-1 mb-2">Conciliación Diaria</h3>
+                    <p class="text-stone-600 text-sm mb-4 leading-relaxed">
+                        Cruce diario de ventas del Reporte Z frente al conteo físico de vitrina para detectar faltantes y mermas en mostrador.
+                    </p>
+                    <div class="pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-semibold">
+                        <span class="text-emerald-700">● 2 Cierres en BD</span>
+                        <a th:href="@{/conciliacion}" class="text-amber-700 hover:text-amber-800 inline-flex items-center gap-1">
+                            Ver Módulo &rarr;
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tarjeta CU-02: Inventario & Alertas -->
+                <div class="bg-white rounded-xl p-6 border border-stone-200 shadow-sm hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center text-2xl mb-4">
+                        🚨
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-rose-700">CU-02 · Alta Prioridad</span>
+                    <h3 class="text-lg font-bold text-stone-900 mt-1 mb-2">Inventario & Alertas</h3>
+                    <p class="text-stone-600 text-sm mb-4 leading-relaxed">
+                        Monitoreo del nivel de las canecas de harina (umbral mínimo de 25 kg) y materias primas para evitar compras de emergencia con 15% de sobrecosto.
+                    </p>
+                    <div class="pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-semibold">
+                        <span class="text-rose-700">● 1 Alerta Crítica (Harina)</span>
+                        <a th:href="@{/inventario/alertas}" class="text-amber-700 hover:text-amber-800 inline-flex items-center gap-1">
+                            Ver Alertas &rarr;
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tarjeta CU-03: Registro de Tandas -->
+                <div class="bg-white rounded-xl p-6 border border-stone-200 shadow-sm hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center text-2xl mb-4">
+                        🍞
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-700">CU-03 · Alta Prioridad</span>
+                    <h3 class="text-lg font-bold text-stone-900 mt-1 mb-2">Registro de Producción</h3>
+                    <p class="text-stone-600 text-sm mb-4 leading-relaxed">
+                        Captura de harina base pesada por el maestro panadero (bulto 50 kg), insumos gastados y rendimiento en unidades horneadas.
+                    </p>
+                    <div class="pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-semibold">
+                        <span class="text-emerald-700">● 2 Tandas Registradas</span>
+                        <a th:href="@{/produccion/tandas}" class="text-amber-700 hover:text-amber-800 inline-flex items-center gap-1">
+                            Registrar Tanda &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel de Estado Técnico y Base de Datos -->
+        <section class="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
+            <h3 class="text-base font-bold text-stone-900 mb-3 flex items-center gap-2">
+                <span>🛠️ Estado de la Infraestructura Base (Fase 1 - Cimientos)</span>
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-mono">
+                <div class="p-3 bg-stone-50 rounded-lg border border-stone-200">
+                    <span class="text-stone-500 block mb-1">Base de Datos H2:</span>
+                    <span class="font-bold text-stone-800">jdbc:h2:file:./data/altanto</span>
+                </div>
+                <div class="p-3 bg-stone-50 rounded-lg border border-stone-200">
+                    <span class="text-stone-500 block mb-1">Estrategia Hibernate:</span>
+                    <span class="font-bold text-stone-800">ddl-auto=validate</span>
+                </div>
+                <div class="p-3 bg-stone-50 rounded-lg border border-stone-200">
+                    <span class="text-stone-500 block mb-1">Carga Inicial SQL:</span>
+                    <span class="font-bold text-emerald-700">schema.sql + data.sql (OK)</span>
+                </div>
+                <div class="p-3 bg-stone-50 rounded-lg border border-stone-200">
+                    <span class="text-stone-500 block mb-1">Consola Web H2:</span>
+                    <a th:href="@{/h2-console}" target="_blank" class="font-bold text-amber-700 hover:underline">/h2-console (Habilitada)</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Pie de página compartido -->
+    <div th:replace="~{fragments/layout :: footer}"></div>
+
+</body>
+</html>
