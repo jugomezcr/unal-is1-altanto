@@ -34,6 +34,10 @@ En orden de prioridad (ver *Entrega 2 – Especificación de requisitos*):
 
 Cada caso de uso se descompone en 2 historias de usuario (12 en total). El backlog vive en el **GitHub Project** del repositorio (tablero Kanban: *To Do → In Progress → In Review / Testing → Done*).
 
+## Documentación
+
+- [Persistencia JPA y repositorios](docs/persistencia-jpa-y-repositorios.md)
+
 ## Alcance de la primera versión
 
 **Dentro**
@@ -53,9 +57,4 @@ Cada caso de uso se descompone en 2 historias de usuario (12 en total). El backl
 - Efectivo vs. billeteras virtuales, fiado, facturación electrónica y APIs bancarias.
 - Varias sucursales, códigos de barras/QR, IA y usuarios adicionales.
 
-## Flujo de trabajo
 
-1. Toma una historia de la columna **To Do** y asígnatela.
-2. Crea una rama `feature/CU-XX-HU-YY-descripcion-corta`.
-3. Abre un Pull Request que referencie la historia (`Closes #N`) y muévela a **In Review / Testing**.
-4. Al aprobar y fusionar, la historia pasa a **Done**.
