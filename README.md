@@ -87,9 +87,17 @@ El backlog completo (6 casos de uso y 12 historias) está en el
 
 ```
 src/main/java/co/edu/unal/sweng1/altanto/
-├── presentacion/     # controladores web (@Controller) y formularios
-├── negocio/          # entidades JPA, servicios (@Service) y reglas de negocio
-└── persistencia/     # repositorios Spring Data JPA
+├── presentacion/
+│   ├── controlador/  # controladores web (@Controller): URL → vista
+│   └── formulario/   # objetos que reciben los datos de un <form>
+├── negocio/
+│   ├── servicio/     # reglas de negocio y transacciones (@Service)
+│   ├── calculo/      # cálculos puros, sin Spring ni base de datos
+│   ├── dto/          # records que solo transportan datos entre capas
+│   └── excepcion/    # errores de negocio con nombre propio
+└── persistencia/
+    ├── entidad/      # clases @Entity: una clase = una tabla
+    └── repositorio/  # consultas (Spring Data JPA)
 src/main/resources/
 ├── templates/        # vistas Thymeleaf (una carpeta por módulo)
 ├── schema.sql        # tablas de la base de datos

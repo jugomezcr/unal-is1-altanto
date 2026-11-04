@@ -146,9 +146,9 @@ unal-is1-altanto/
 │   ├── main/
 │   │   ├── java/co/edu/unal/sweng1/altanto/
 │   │   │   ├── AltantoApplication.java   ← punto de arranque (método main)
-│   │   │   ├── presentacion/             ← CAPA 1: controladores web y formularios
-│   │   │   ├── negocio/                  ← CAPA 2: entidades, servicios y reglas
-│   │   │   └── persistencia/             ← CAPA 3: repositorios (consultas)
+│   │   │   ├── presentacion/             ← CAPA 1: controlador/ y formulario/
+│   │   │   ├── negocio/                  ← CAPA 2: servicio/, calculo/, dto/, excepcion/
+│   │   │   └── persistencia/             ← CAPA 3: entidad/ (tablas) y repositorio/ (consultas)
 │   │   └── resources/
 │   │       ├── application.properties    ← configuración (base de datos, consola H2)
 │   │       ├── schema.sql                ← crea las tablas
@@ -250,13 +250,14 @@ El código está separado en **tres capas**. Cada una solo habla con la de abajo
  ┌──────────────────────────────────────────────┐
  │ NEGOCIO        negocio/                      │  Las reglas: la fórmula, "no dos por
  │   ConciliacionService (@Service)             │  fecha", confirmar, alertas.
- │   ConciliacionDiaria, DetalleConciliacion... │  Abre y cierra las transacciones.
+ │   ConteoArticulo, ReglaDeNegocioException... │  Abre y cierra las transacciones.
  └───────────────────────┬──────────────────────┘
                          │ llama a repositorios
                          ▼
  ┌──────────────────────────────────────────────┐
  │ PERSISTENCIA   persistencia/                 │  Guarda y consulta. Interfaces que
  │   ConciliacionRepository, ...                │  Spring Data JPA convierte en SQL.
+ │   ConciliacionDiaria, DetalleConciliacion... │  Las entidades (@Entity) = las tablas.
  └───────────────────────┬──────────────────────┘
                          ▼
                 Base de datos H2 (./data/altanto.mv.db)
@@ -655,18 +656,18 @@ CU-02. Mañana, la existencia anterior de la harina será **14**.
 
 ### Mapa de archivos del CU-01
 ```
- presentacion/ConciliacionController.java   las 6 rutas
- presentacion/ConciliacionForm.java         el formulario y sus validaciones
- templates/conciliacion/nueva.html          pantalla HU-01
- templates/conciliacion/resumen.html        pantalla HU-02 (diferencias y confirmar)
- templates/conciliacion/historial.html      pantalla HU-02 (cierres previos)
- negocio/ConciliacionService.java           las reglas y transacciones
- negocio/ConciliacionDiaria.java            cabecera + confirmar()
- negocio/DetalleConciliacion.java           línea + calcular() + tieneDiferencia()
- negocio/EstadoConciliacion.java            BORRADOR / CONFIRMADA
- negocio/*Exception.java                    errores de negocio
- negocio/ConteoArticulo.java, InsumoEnAlerta.java, CierrePrevio.java   records
- persistencia/*Repository.java              las consultas
+ presentacion/controlador/ConciliacionController.java   las 6 rutas
+ presentacion/formulario/ConciliacionForm.java          el formulario y sus validaciones
+ templates/conciliacion/nueva.html                      pantalla HU-01
+ templates/conciliacion/resumen.html                    pantalla HU-02 (diferencias y confirmar)
+ templates/conciliacion/historial.html                  pantalla HU-02 (cierres previos)
+ negocio/servicio/ConciliacionService.java              las reglas y transacciones
+ negocio/excepcion/*Exception.java                      errores de negocio
+ negocio/dto/ConteoArticulo, InsumoEnAlerta, CierrePrevio   records
+ persistencia/entidad/ConciliacionDiaria.java           cabecera + confirmar()
+ persistencia/entidad/DetalleConciliacion.java          línea + calcular() + tieneDiferencia()
+ persistencia/entidad/EstadoConciliacion.java           BORRADOR / CONFIRMADA
+ persistencia/repositorio/*Repository.java              las consultas
 ```
 
 ---
@@ -680,11 +681,13 @@ daña, la prueba falla y avisa antes de que el problema llegue al usuario. Se co
 
 | Tipo | Archivo | Qué arranca | Qué prueba |
 |---|---|---|---|
-| **Unitaria** | `negocio/DetalleConciliacionTest` | Nada: solo `new` | La fórmula, `tieneDiferencia()`, confirmar dos veces |
-| **Integración** | `negocio/ConciliacionServiceTest` | Spring + H2 en memoria | Todos los criterios con datos reales |
-| **Rollback** | `negocio/ConciliacionRollbackTest` | Spring + H2, **sin** `@Transactional` | Que si una línea falla no quede **nada** guardado |
-| **Web** | `presentacion/ConciliacionControllerTest` | Spring + MockMvc | Las pantallas: formulario, redirección, 404, mensajes |
-| Repositorio | `InsumoRepositoryTest` | Solo JPA (`@DataJpaTest`) | Una consulta |
+| **Unitaria** | `persistencia/entidad/DetalleConciliacionTest` | Nada: solo `new` | La fórmula, `tieneDiferencia()`, confirmar dos veces |
+| **Integración** | `negocio/servicio/ConciliacionServiceTest` | Spring + H2 en memoria | Todos los criterios con datos reales |
+| **Rollback** | `negocio/servicio/ConciliacionRollbackTest` | Spring + H2, **sin** `@Transactional` | Que si una línea falla no quede **nada** guardado |
+| **Web** | `presentacion/controlador/ConciliacionControllerTest` | Spring + MockMvc | Las pantallas: formulario, redirección, 404, mensajes |
+| Repositorio | `persistencia/repositorio/InsumoRepositoryTest` | Solo JPA (`@DataJpaTest`) | Una consulta |
+
+Las pruebas están en los mismos paquetes que la clase que prueban (en `src/test/java`).
 
 La estructura de una prueba (*preparar → actuar → verificar*):
 
@@ -758,14 +761,16 @@ Es el mismo camino que siguió el CU-01. Sirve para CU-02-HU-01 (Pedro) y CU-03-
 
 1. **Leer la historia** en la Entrega 2 o en su issue: los criterios de aceptación son la
    lista de lo que debe funcionar.
-2. **Revisar las tablas** en `schema.sql`. ¿Existe la entidad? Si no, crearla en `negocio/`
+2. **Revisar las tablas** en `schema.sql`. ¿Existe la entidad? Si no, crearla en `persistencia/entidad/`
    con `@Entity`, copiando los nombres de columnas **exactos** (sección 6.1).
-3. **Consultas:** agregar métodos al repositorio en `persistencia/` (consulta derivada o
-   `@Query`).
-4. **Reglas:** un `@Service` en `negocio/` con métodos `@Transactional`. Cada regla que no
-   se cumpla lanza una `ReglaDeNegocioException`.
-5. **Pantalla:** un `@Controller` en `presentacion/` (y quitar la ruta provisional de
-   `HomeController`), un objeto de formulario si hace falta y la plantilla en `templates/`.
+3. **Consultas:** agregar métodos al repositorio en `persistencia/repositorio/` (consulta
+   derivada o `@Query`).
+4. **Reglas:** un `@Service` en `negocio/servicio/` con métodos `@Transactional`. Cada regla
+   que no se cumpla lanza una `ReglaDeNegocioException` (o una propia en `negocio/excepcion/`).
+   Los records que viajan entre capas van en `negocio/dto/`.
+5. **Pantalla:** un `@Controller` en `presentacion/controlador/` (y quitar la ruta provisional
+   de `HomeController`), un objeto de formulario en `presentacion/formulario/` si hace falta y
+   la plantilla en `templates/`.
 6. **Pruebas:** al menos una por criterio de aceptación (sección 10).
 7. **Comentar** el código para quien no sabe Java: qué hace cada clase, método y anotación.
 8. **Documentar** en `docs/hito-N/`, con una tabla de criterio → código → prueba como la de

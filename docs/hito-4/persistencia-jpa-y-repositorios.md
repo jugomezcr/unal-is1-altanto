@@ -18,7 +18,7 @@ guardar datos.
 
 ## 2. Qué se construyó
 
-### 2.1 Entidades JPA (`src/main/java/co/edu/unal/sweng1/altanto/negocio/`)
+### 2.1 Entidades JPA (`src/main/java/co/edu/unal/sweng1/altanto/persistencia/entidad/`)
 
 | Entidad | Tabla | Propósito |
 |---|---|---|
@@ -30,7 +30,7 @@ guardar datos.
 | `TandaProduccion` | `tandas_produccion` | Registro de horneadas (CU-03). |
 | `DetalleTandaInsumo` | `detalles_tanda_insumo` | Insumos consumidos por tanda (CU-03). |
 
-### 2.2 Repositorios (`src/main/java/co/edu/unal/sweng1/altanto/persistencia/`)
+### 2.2 Repositorios (`src/main/java/co/edu/unal/sweng1/altanto/persistencia/repositorio/`)
 
 | Repositorio | Entidad | Consultas |
 |---|---|---|
