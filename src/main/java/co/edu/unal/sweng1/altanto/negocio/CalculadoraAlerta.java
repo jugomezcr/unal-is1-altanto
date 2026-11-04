@@ -41,8 +41,9 @@ public class CalculadoraAlerta {
         }
         BigDecimal existencia = existenciaEfectiva(datos.existencia());
 
-        // TODO-COMENTARIO: explica por qué se usa compareTo y no equals con BigDecimal
+        // explica por qué se usa compareTo y no equals con BigDecimal
         boolean enAlerta = existencia.compareTo(datos.umbral()) <= 0;
+
         if (!enAlerta) {
             return NivelAlerta.NORMAL;
         }
@@ -50,7 +51,7 @@ public class CalculadoraAlerta {
             return NivelAlerta.CRITICO;
         }
 
-        // TODO-COMENTARIO: explica por qué se compara la cobertura ya redondeada con "<" estricto
+        // explica por qué se compara la cobertura ya redondeada con "<" estricto
         BigDecimal cobertura = calcularCobertura(existencia, datos.consumoDiario());
         if (cobertura != null && cobertura.compareTo(limiteDiasCritico) < 0) {
             return NivelAlerta.CRITICO;
@@ -71,12 +72,13 @@ public class CalculadoraAlerta {
     public InsumoPanel armarPanel(DatosInsumo datos) {
         BigDecimal umbral = (datos.umbral() == null) ? BigDecimal.ZERO : datos.umbral();
         return new InsumoPanel(
-                datos.nombre(),
-                datos.unidad(),
-                existenciaEfectiva(datos.existencia()),
-                umbral,
-                calcularDeficit(datos),
-                calcularCobertura(datos.existencia(), datos.consumoDiario()),
-                calcularNivel(datos));
+            datos.nombre(),
+            datos.unidad(),
+            existenciaEfectiva(datos.existencia()),
+            umbral,
+            datos.consumoDiario(),
+            calcularDeficit(datos),
+            calcularCobertura(datos.existencia(), datos.consumoDiario()),
+            calcularNivel(datos));
     }
 }

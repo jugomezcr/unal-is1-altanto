@@ -55,6 +55,7 @@
                             <th class="px-6 py-3 font-semibold">Insumo</th>
                             <th class="px-6 py-3 font-semibold">Existencia</th>
                             <th class="px-6 py-3 font-semibold">Umbral mínimo</th>
+                            <th class="px-6 py-3 font-semibold">Consumo promedio diario</th>
                             <th class="px-6 py-3 font-semibold">Déficit</th>
                             <th class="px-6 py-3 font-semibold">Cobertura (días)</th>
                             <th class="px-6 py-3 font-semibold">Estado</th>
@@ -79,6 +80,12 @@
                             <td class="px-6 py-4"
                                 th:text="${insumo.umbral + ' ' + insumo.unidad}">
                                 Umbral
+                            </td>
+
+                            <td class="px-6 py-4"
+                                th:text="${insumo.consumoDiario != null} ?
+                                        ${insumo.consumoDiario + ' ' + insumo.unidad + '/día'} : 'No disponible'">
+                                Consumo diario
                             </td>
 
                             <td class="px-6 py-4"
