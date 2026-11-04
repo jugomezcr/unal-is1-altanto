@@ -37,7 +37,7 @@ public class AlertaInsumosService {
     //    si no está, usa lo que va después de los dos puntos.
     public AlertaInsumosService(
             FuenteInsumos fuente,
-            @Value("${altanto.alertas.codigos-visibles:INS-HAR-01,INS-LEV-01,INS-MAR-01}") String codigosVisibles,
+            @Value("${altanto.alertas.codigos-visibles:INS-AZU-01,INS-HAR-01,INS-LEV-01,INS-MAR-01,INS-QUE-01}") String codigosVisibles,
             @Value("${altanto.alertas.dias-critico:1}") BigDecimal diasCritico) {
         this.fuente = fuente;
         // "A,B, C" -> {"A","B","C"}: separa por comas, quita espacios y vacíos.
@@ -55,9 +55,7 @@ public class AlertaInsumosService {
         if (todos == null) {
             return List.of();
         }
-        // El filtro de visibles va aquí y no en la fuente: es una regla de negocio (qué se
-        // muestra), no de acceso a datos. Así cualquier fuente (BD o memoria en pruebas)
-        // recibe el mismo filtro y la consulta SQL no depende de la configuración.
+        // El filtro pertenece a la configuración del panel, no a la consulta general de insumos reutilizable.
         // stream(): recorre la lista como un pipeline (filter = if, map = transformar).
         return todos.stream()
                 .filter(datos -> datos != null && codigosVisibles.contains(datos.codigo()))
