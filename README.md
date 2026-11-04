@@ -123,6 +123,11 @@ fiado, facturación electrónica, varias sucursales y usuarios adicionales.
 
 ## Documentación
 
+- **[Al-Tanto desde cero](docs/guia-desde-cero.md):** cómo está construido el proyecto,
+  explicado para quien nunca ha usado Java ni Spring Boot, hasta el CU-01 terminado.
+- **[Guía de ejecución](docs/guia-de-ejecucion.md):** cómo ejecutar y probar la aplicación
+  paso a paso.
+
 | Hito | Entrega | Documentos |
 |:---|:---|:---|
 | 1 | Definición del producto | [Entrega 1 (PDF)](docs/hito-1/Proy.%20Al%20tanto%20-%20Entrega%201.pdf) |
