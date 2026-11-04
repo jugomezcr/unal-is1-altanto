@@ -91,11 +91,11 @@ vigentes son de CU-02-HU-01 (`/inventario/alertas`), a la que se enlaza.
 
 ## 6. Puntos de contacto con las otras historias del Sprint 1
 
-- **CU-02-HU-01 (#5):** puede reutilizar `InsumoConfigRepository.buscarInsumosEnAlerta()`,
+- **CU-02-HU-01 (#5, Pedro):** puede reutilizar `InsumoConfigRepository.buscarInsumosEnAlerta()`,
   que ya compara cada insumo contra **su** umbral. Para el proveedor habitual hay que
   ampliar el `record` o la consulta. La ruta `/inventario/alertas` sigue provisional en
   `HomeController`.
-- **CU-03-HU-01 (#8):** el producto de una tanda debe ser un artículo
+- **CU-03-HU-01 (#8, Brayan Nikolás):** el producto de una tanda debe ser un artículo
   `PRODUCTO_ELABORADO`. `DetalleTandaInsumoRepository` ya existe y se le pueden agregar
   métodos. La ruta `/produccion/tandas` sigue provisional en `HomeController`.
 - **Base local:** como `data.sql` cambió, hay que borrar la carpeta `./data/` para

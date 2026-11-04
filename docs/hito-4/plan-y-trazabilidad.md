@@ -18,8 +18,18 @@ comprometidas en la Entrega 2 (tabla 3, backlog):
 |---|---|---|---|
 | #2 | CU-01-HU-01: Digitar lo vendido y lo contado del día | Juan Pablo Gómez | `jugomezcr` |
 | #3 | CU-01-HU-02: Ver las diferencias y confirmar la conciliación | Juan Pablo Gómez | `jugomezcr` |
-| #5 | CU-02-HU-01: Ver los insumos en alerta | Brayan Nikolás Gallo | `NikkoWebDev` |
+| #5 | CU-02-HU-01: Ver los insumos en alerta | Pedro Correa | `pedroerjes` |
 | #8 | CU-03-HU-01: Registrar la harina pesada, las unidades obtenidas y los insumos gastados | Brayan Nikolás Gallo | `NikkoWebDev` |
+
+Cada caso de uso tiene un solo responsable para su épica y todas sus historias, en todos
+los sprints:
+
+| Caso de uso | Responsable | Issues |
+|---|---|---|
+| CU-01 Conciliar el día | Juan Pablo Gómez (`jugomezcr`) | #1, #2, #3 |
+| CU-02 Generar el pedido ante una alerta | Pedro Correa (`pedroerjes`) | #4, #5, #6 |
+| CU-03 Registrar una tanda de producción | Brayan Nikolás Gallo (`NikkoWebDev`) | #7, #8, #9 |
+| CU-04 a CU-06 | Por asignar | #10 a #18 |
 
 Las historias de los Sprint 2 y 3 siguen en *To Do*.
 
@@ -29,7 +39,7 @@ Las historias de los Sprint 2 y 3 siguen en *To Do*.
 |---|---|---|---|
 | 1. Infraestructura base | 1–3: Spring Boot 4 / Java 21 / `mvnw`, H2 en archivo `./data/altanto.mv.db`, Thymeleaf + Tailwind (CDN) | Julián Sánchez (`Julsanchezc`) | Hecho |
 | 2. Persistencia | 4–5: `schema.sql` y `data.sql` (Pedro Correa, `pedroerjes`). 6–7: entidades JPA y repositorios (Leonardo Betancur, `BETAPANDERETA`) | Pedro y Leonardo | Hecho (PR #19). Ver [persistencia-jpa-y-repositorios.md](persistencia-jpa-y-repositorios.md) |
-| 3. Historias de usuario | 8–9: CU-01-HU-01 y CU-01-HU-02 (rama `feat/C1H1`). 10–11: CU-02-HU-01 y CU-03-HU-01 | Juan Pablo y Brayan Nikolás | 8–9 implementados y probados, ver [conciliacion-cu01.md](conciliacion-cu01.md). 10–11 pendientes |
+| 3. Historias de usuario | 8–9: CU-01-HU-01 y CU-01-HU-02 (rama `feat/C1H1`). 10: CU-02-HU-01 (Pedro). 11: CU-03-HU-01 (Brayan Nikolás) | Juan Pablo, Pedro y Brayan Nikolás | 8–9 implementados y probados, ver [conciliacion-cu01.md](conciliacion-cu01.md). 10–11 pendientes |
 | 4. Verificación y cierre | 12: `./mvnw spring-boot:run` arranca sin errores. 13: mover #2, #3, #5 y #8 a *In Review* o *Done*. 14: todos con commits significativos | Todo el equipo | Pendiente |
 
 > **Paso 12, ya corregido:** `data.sql` usaba `INSERT` simples y, como la base es un
