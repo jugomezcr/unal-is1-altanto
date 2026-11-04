@@ -29,7 +29,7 @@ Las historias de los Sprint 2 y 3 siguen en *To Do*.
 |---|---|---|---|
 | 1. Infraestructura base | 1–3: Spring Boot 4 / Java 21 / `mvnw`, H2 en archivo `./data/altanto.mv.db`, Thymeleaf + Tailwind (CDN) | Julián Sánchez (`Julsanchezc`) | Hecho |
 | 2. Persistencia | 4–5: `schema.sql` y `data.sql` (Pedro Correa, `pedroerjes`). 6–7: entidades JPA y repositorios (Leonardo Betancur, `BETAPANDERETA`) | Pedro y Leonardo | Hecho (PR #19). Ver [persistencia-jpa-y-repositorios.md](persistencia-jpa-y-repositorios.md) |
-| 3. Historias de usuario | 8–9: CU-01-HU-01 y CU-01-HU-02 (rama `feat/C1H1`). 10–11: CU-02-HU-01 y CU-03-HU-01 | Juan Pablo y Brayan Nikolás | En curso |
+| 3. Historias de usuario | 8–9: CU-01-HU-01 y CU-01-HU-02 (rama `feat/C1H1`). 10–11: CU-02-HU-01 y CU-03-HU-01 | Juan Pablo y Brayan Nikolás | 8–9 implementados y probados, ver [conciliacion-cu01.md](conciliacion-cu01.md). 10–11 pendientes |
 | 4. Verificación y cierre | 12: `./mvnw spring-boot:run` arranca sin errores. 13: mover #2, #3, #5 y #8 a *In Review* o *Done*. 14: todos con commits significativos | Todo el equipo | Pendiente |
 
 > **Paso 12, ya corregido:** `data.sql` usaba `INSERT` simples y, como la base es un
@@ -57,3 +57,13 @@ al repositorio de referencia, como se ve en esta tabla:
 Los nombres de entidades del plan de la Entrega 4 (`ReporteZ`, `Conciliacion`, `Insumo`)
 eran ilustrativos. Los nombres reales son los de la tabla de la sección 2.1 de
 [persistencia-jpa-y-repositorios.md](persistencia-jpa-y-repositorios.md).
+
+## 4. Cambios compartidos que afectan a todo el equipo
+
+- **Tipos de artículo:** `INSUMO`, `PRODUCTO_REVENTA` y `PRODUCTO_ELABORADO`
+  (constantes en `Articulo`). El antiguo `PRODUCTO_VENTA` ya no se usa. Detalle en la
+  sección 5.1 de [conciliacion-cu01.md](conciliacion-cu01.md).
+- **`ConciliacionDiaria.estado`** ahora es el enum `EstadoConciliacion`, no un `String`.
+- **Recargar los datos semilla:** `data.sql` solo inserta en tablas vacías. Después de
+  cambiarlo hay que detener la aplicación y **borrar la carpeta `./data/`**. En el
+  siguiente arranque se crea de nuevo con los datos actualizados.

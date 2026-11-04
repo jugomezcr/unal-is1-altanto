@@ -43,7 +43,7 @@ Organizada por hito (cada hito corresponde a una entrega del curso):
 | 1 | Definición del producto (visión, alcance, entrevista HEFESTO-01) | [PDF](docs/hito-1/Proy.%20Al%20tanto%20-%20Entrega%201.pdf) |
 | 2 | Especificación de requisitos (casos de uso, historias, backlog, HEFESTO-02) | [PDF](docs/hito-2/Proy.%20%20Altanto%20-%20Entrega%202.pdf) |
 | 3 | Diseño arquitectónico y detallado | [PDF](docs/hito-3/Proy.%20Al%20tanto%20-%20Entrega%203.pdf) |
-| 4 | Primer incremento funcional (Sprint 1) | [Plan](docs/hito-4/Proy.%20Al%20tanto%20-%20Entrega%204.pdf) · [Plan, responsables y trazabilidad](docs/hito-4/plan-y-trazabilidad.md) · [Persistencia JPA y repositorios](docs/hito-4/persistencia-jpa-y-repositorios.md) |
+| 4 | Primer incremento funcional (Sprint 1) | [Plan](docs/hito-4/Proy.%20Al%20tanto%20-%20Entrega%204.pdf) · [Plan, responsables y trazabilidad](docs/hito-4/plan-y-trazabilidad.md) · [Persistencia JPA y repositorios](docs/hito-4/persistencia-jpa-y-repositorios.md) · [CU-01 Conciliar el día](docs/hito-4/conciliacion-cu01.md) |
 
 ## Cómo ejecutar
 
