@@ -53,7 +53,7 @@ guardar datos.
 Todos los `NUMERIC` del `schema.sql` se mapean a `BigDecimal`, no a `double` ni
 `float`. `double` tiene errores de redondeo binario (0.1 + 0.2 ≠ 0.3), inaceptables
 para kilos o pesos. `BigDecimal` es de precisión arbitraria y respeta exactamente
-la precisión y escala del SQL (`precision` y `scale` en `@Column`).Esta sugerencia fué dada por la IA, así que se decidió implementarla.
+la precisión y escala del SQL (`precision` y `scale` en `@Column`).Esta sugerencia fue dada por la IA, así que se decidió implementarla.
 
 ### 3.2 `@GeneratedValue(SEQUENCE)` con `allocationSize = 1`
 
@@ -90,3 +90,7 @@ En Spring Boot 4, `@DataJpaTest` cambió de paquete. El import correcto es:
 
 ```java
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+```
+
+El import antiguo (`org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest`)
+ya no existe y hace fallar la compilación del test.

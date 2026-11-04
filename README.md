@@ -36,7 +36,23 @@ Cada caso de uso se descompone en 2 historias de usuario (12 en total). El backl
 
 ## Documentación
 
-- [Persistencia JPA y repositorios](docs/persistencia-jpa-y-repositorios.md)
+Organizada por hito (cada hito corresponde a una entrega del curso):
+
+| Hito | Entrega | Documentos |
+|---|---|---|
+| 1 | Definición del producto (visión, alcance, entrevista HEFESTO-01) | [PDF](docs/hito-1/Proy.%20Al%20tanto%20-%20Entrega%201.pdf) |
+| 2 | Especificación de requisitos (casos de uso, historias, backlog, HEFESTO-02) | [PDF](docs/hito-2/Proy.%20%20Altanto%20-%20Entrega%202.pdf) |
+| 3 | Diseño arquitectónico y detallado | [PDF](docs/hito-3/Proy.%20Al%20tanto%20-%20Entrega%203.pdf) |
+| 4 | Primer incremento funcional (Sprint 1) | [Plan](docs/hito-4/Proy.%20Al%20tanto%20-%20Entrega%204.pdf) · [Plan, responsables y trazabilidad](docs/hito-4/plan-y-trazabilidad.md) · [Persistencia JPA y repositorios](docs/hito-4/persistencia-jpa-y-repositorios.md) |
+
+## Cómo ejecutar
+
+```bash
+./mvnw spring-boot:run     # levanta la app en http://localhost:8080
+./mvnw test                # corre las pruebas
+```
+
+La base H2 queda en `./data/altanto.mv.db`. Para volver a los datos semilla, detener la app y borrar `./data/`.
 
 ## Alcance de la primera versión
 
