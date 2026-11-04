@@ -1,8 +1,12 @@
 # Hito 4: plan, responsables y trazabilidad
 
-Este documento une el plan comprometido para la Entrega 4
-([PDF](Proy.%20Al%20tanto%20-%20Entrega%204.pdf)) con el backlog de GitHub y con el
-código. Si algo cambia en uno de esos tres lugares, se actualiza aquí.
+Este documento une los dos documentos de la Entrega 4 con el backlog de GitHub y con el
+código. Si algo cambia en uno de esos lugares, se actualiza aquí.
+
+- [Compromiso de desarrollo (PDF)](Proy.%20Al%20tanto%20-%20Entrega%204.pdf): el
+  documento formal entregado. Sprint 1: 21/10/2026 a 04/11/2026.
+- [Plan de trabajo (PDF)](Plan%20-%20Entrega%204.pdf): el plan interno por fases y
+  responsables (sección 2).
 
 Guía de implementación acordada: repositorio de referencia del curso
 <https://github.com/LeonardoDelgado1905/sweng1-proyecto-referencia>.
@@ -64,9 +68,19 @@ al repositorio de referencia, como se ve en esta tabla:
 | `PedidoReabastecimiento`, `EstadoPedido`, `PackagingRounder` | Sprint 2 (CU-02-HU-02) | No pertenecen al Sprint 1. |
 | `BusinessRuleException` | Excepciones de negocio propias en `negocio/` | Mismo principio de la Entrega 3: los errores de negocio se expresan con excepciones con nombre. |
 
-Los nombres de entidades del plan de la Entrega 4 (`ReporteZ`, `Conciliacion`, `Insumo`)
-eran ilustrativos. Los nombres reales son los de la tabla de la sección 2.1 de
-[persistencia-jpa-y-repositorios.md](persistencia-jpa-y-repositorios.md).
+### 3.1 Compromiso de la Entrega 4 frente al código
+
+El compromiso de desarrollo (PDF) se redactó antes de construir el incremento. Estas son
+las diferencias con lo que realmente se construyó:
+
+| Compromiso E4 | Implementación | Razón |
+|---|---|---|
+| Spring Boot 3.3.x | Spring Boot **4.1.2** (`pom.xml`) | Es la versión que se configuró en la Fase 1. Cumple igual la restricción de la cátedra: Spring Boot con servidor embebido y Java 21. |
+| Arquitectura en 4 capas | 3 paquetes por capas | Ver la tabla anterior. Es la estructura del repositorio de referencia. |
+| 7 tablas en el esquema | 9 tablas en `schema.sql` | Se agregaron `productos_venta_config` y `alertas_reabastecimiento` al construir la Fase 2. |
+| Entidades `ReporteZ`, `ConciliacionTurno`, `Insumo` | `ConciliacionDiaria` (con el total del reporte Z), `DetalleConciliacion`, `Articulo` | Nombres reales: sección 2.1 de [persistencia-jpa-y-repositorios.md](persistencia-jpa-y-repositorios.md). |
+| CU-01: capturar el "turno" y el "efectivo en caja" | Conciliación por **día**, con el total del reporte Z | La Entrega 2 define la conciliación por día (extensión 1a). Efectivo vs. billeteras queda *fuera por ahora* (Entregas 1 y 2). |
+| Recetas en `data.sql` y mermas teóricas | No se implementan | Recetas y mermas quedan *fuera por ahora* (Entrega 1). El mismo compromiso aplaza ese cálculo a la E5. |
 
 ## 4. Cambios compartidos que afectan a todo el equipo
 
