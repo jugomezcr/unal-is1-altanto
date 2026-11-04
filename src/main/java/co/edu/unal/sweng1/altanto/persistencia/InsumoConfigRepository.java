@@ -5,6 +5,7 @@ import co.edu.unal.sweng1.altanto.negocio.InsumoEnAlerta;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import co.edu.unal.sweng1.altanto.negocio.DatosInsumo;
 
 /**
  * Acceso a la tabla {@code insumos_config} (umbral mínimo, proveedor habitual y
@@ -33,4 +34,25 @@ public interface InsumoConfigRepository extends JpaRepository<InsumoConfig, Long
             ORDER BY a.nombre
             """)
     List<InsumoEnAlerta> buscarInsumosEnAlerta();
+
+    /**
+ * Obtiene los datos de los insumos activos y configurados
+ * necesarios para calcular el panel de alertas.
+ */
+@Query("""
+        SELECT new co.edu.unal.sweng1.altanto.negocio.DatosInsumo(
+            a.codigo,
+            a.nombre,
+            a.unidadMedida,
+            a.existenciaActual,
+            c.umbralMinimo,
+            c.consumoPromedioDiario
+        )
+        FROM Articulo a, InsumoConfig c
+        WHERE c.articuloId = a.id
+          AND a.tipoArticulo = 'INSUMO'
+          AND a.activo = true
+        ORDER BY a.nombre
+        """)
+List<DatosInsumo> buscarDatosParaPanelAlertas();
 }

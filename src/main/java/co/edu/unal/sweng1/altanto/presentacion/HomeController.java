@@ -17,10 +17,7 @@ public class HomeController {
 	// Si estuviera aquí también, Spring no arrancaría por tener dos métodos para la misma URL.
 
 	// Rutas provisionales: las reemplazan CU-02-HU-01 y CU-03-HU-01 con su propio controlador.
-	@GetMapping("/inventario/alertas")
-	public String inventarioAlertas() {
-		return "inventario/alertas";
-	}
+	// lo elimine y creare una nueva ruta para no generar errores con spring
 
 	@GetMapping("/produccion/tandas")
 	public String produccionTandas() {
