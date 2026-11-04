@@ -27,7 +27,7 @@ public class AlertaInsumosService {
 
     public AlertaInsumosService(
             FuenteInsumos fuente,
-            @Value("${altanto.alertas.codigos-visibles:INS-HAR-01,INS-LEV-01,INS-MAR-01}") String codigosVisibles,
+            @Value("${altanto.alertas.codigos-visibles:INS-AZU-01,INS-HAR-01,INS-LEV-01,INS-MAR-01,INS-QUE-01}") String codigosVisibles,
             @Value("${altanto.alertas.dias-critico:1}") BigDecimal diasCritico) {
         this.fuente = fuente;
         this.codigosVisibles = Arrays.stream(codigosVisibles.split(","))
@@ -42,7 +42,7 @@ public class AlertaInsumosService {
         if (todos == null) {
             return List.of();
         }
-        // TODO-COMENTARIO: explica por qué el filtro de visibles se hace aquí y no en la fuente
+        // El filtro pertenece a la configuración del panel, no a la consulta general de insumos reutilizable.
         return todos.stream()
                 .filter(datos -> datos != null && codigosVisibles.contains(datos.codigo()))
                 .map(calculadora::armarPanel)
