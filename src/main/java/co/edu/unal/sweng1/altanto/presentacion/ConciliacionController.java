@@ -31,6 +31,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  *   <tr><th>Método y URL</th><th>Qué hace</th><th>Historia</th></tr>
  *   <tr><td>GET /conciliacion</td><td>Muestra el formulario</td><td>HU-01</td></tr>
  *   <tr><td>POST /conciliacion</td><td>Guarda el borrador</td><td>HU-01</td></tr>
+ *   <tr><td>GET /conciliacion/historial</td><td>Lista los cierres previos</td><td>HU-02</td></tr>
  *   <tr><td>GET /conciliacion/{id}</td><td>Muestra las diferencias</td><td>HU-02</td></tr>
  *   <tr><td>POST /conciliacion/{id}/confirmar</td><td>Confirma</td><td>HU-02</td></tr>
  *   <tr><td>POST /conciliacion/{id}/descartar</td><td>Descarta el borrador</td><td>HU-02</td></tr>
@@ -127,6 +128,18 @@ public class ConciliacionController {
     // =========================================================================
     // CU-01-HU-02: diferencias y confirmación
     // =========================================================================
+
+    /**
+     * GET /conciliacion/historial: lista los cierres previos (borradores y confirmados).
+     *
+     * <p>Spring elige la ruta más específica: {@code /historial} es un texto fijo, así que
+     * gana sobre {@code /{id}}, aunque las dos empiecen por {@code /conciliacion/}.</p>
+     */
+    @GetMapping("/historial")
+    public String historial(Model model) {
+        model.addAttribute("cierres", conciliacionService.historial());
+        return "conciliacion/historial";
+    }
 
     /**
      * GET /conciliacion/{id}: muestra, por artículo, lo esperado, lo contado y la

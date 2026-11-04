@@ -650,20 +650,22 @@ CU-02. Mañana, la existencia anterior de la harina será **14**.
 | Deja vacío un "Contado" | Muestra "Digite lo contado." junto al campo | `@NotNull` en `ConciliacionForm` |
 | Pulsa **Cancelar** en el formulario | No envía nada, así que no se guarda nada | Es solo un enlace a `/` |
 | Pulsa **Descartar borrador** | Borra la cabecera y sus líneas | `service.descartar()` |
+| Quiere ver días anteriores | Lista los cierres previos con su estado y cuántos artículos no cuadraron | `GET /conciliacion/historial` → `service.historial()` |
 | Intenta confirmar dos veces | Muestra "ya está confirmada" | `ConciliacionDiaria.confirmar()` |
 
 ### Mapa de archivos del CU-01
 ```
- presentacion/ConciliacionController.java   las 5 rutas
+ presentacion/ConciliacionController.java   las 6 rutas
  presentacion/ConciliacionForm.java         el formulario y sus validaciones
  templates/conciliacion/nueva.html          pantalla HU-01
- templates/conciliacion/resumen.html        pantalla HU-02
+ templates/conciliacion/resumen.html        pantalla HU-02 (diferencias y confirmar)
+ templates/conciliacion/historial.html      pantalla HU-02 (cierres previos)
  negocio/ConciliacionService.java           las reglas y transacciones
  negocio/ConciliacionDiaria.java            cabecera + confirmar()
  negocio/DetalleConciliacion.java           línea + calcular() + tieneDiferencia()
  negocio/EstadoConciliacion.java            BORRADOR / CONFIRMADA
  negocio/*Exception.java                    errores de negocio
- negocio/ConteoArticulo.java, InsumoEnAlerta.java   records
+ negocio/ConteoArticulo.java, InsumoEnAlerta.java, CierrePrevio.java   records
  persistencia/*Repository.java              las consultas
 ```
 

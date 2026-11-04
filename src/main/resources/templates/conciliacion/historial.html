@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<!--
+  Cierres previos del CU-01 (compromiso de la Entrega 4 para CU-01-HU-02:
+  "permite confirmar el cierre diario y consultar cierres previos").
+  La pinta ConciliacionController (GET /conciliacion/historial).
+
+  Datos que llegan en el Model:
+   - cierres : lista de CierrePrevio (id, fecha, totalVentasZ, estado, articulos, conDiferencia),
+               de la conciliación más reciente a la más antigua.
+-->
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Cierres anteriores')}">
+    <meta charset="UTF-8">
+    <title>Cierres anteriores</title>
+</head>
+<body class="bg-stone-50 text-stone-800 min-h-screen flex flex-col font-sans">
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <main class="flex-grow max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-stone-900">Cierres anteriores</h1>
+                <p class="text-stone-600">Todas las conciliaciones del día registradas, de la más reciente a la más antigua.</p>
+            </div>
+            <a th:href="@{/conciliacion}" class="px-5 py-3 rounded-lg bg-amber-700 text-white font-semibold hover:bg-amber-800">
+                Conciliar el día
+            </a>
+        </div>
+
+        <div class="bg-white rounded-xl border border-stone-200 shadow-sm overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead class="text-xs uppercase text-stone-500 border-b border-stone-200 bg-stone-50">
+                    <tr>
+                        <th class="py-3 px-4">Fecha</th>
+                        <th class="py-3 px-4 text-right">Ventas reporte Z</th>
+                        <th class="py-3 px-4">Estado</th>
+                        <th class="py-3 px-4 text-right">Artículos</th>
+                        <th class="py-3 px-4 text-right">Con diferencia</th>
+                        <th class="py-3 px-4"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Una fila por conciliación; th:each repite el <tr> por cada elemento de la lista -->
+                    <tr th:each="c : ${cierres}" class="border-b border-stone-100 hover:bg-stone-50">
+                        <td class="py-3 px-4 font-medium" th:text="${#temporals.format(c.fecha, 'dd/MM/yyyy')}">01/11/2026</td>
+                        <td class="py-3 px-4 text-right"
+                            th:text="'$ ' + ${#numbers.formatDecimal(c.totalVentasZ, 1, 'POINT', 0, 'COMMA')}">$ 345.000</td>
+                        <td class="py-3 px-4">
+                            <span th:text="${c.estado}"
+                                  th:classappend="${c.esBorrador()} ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'"
+                                  class="px-2 py-0.5 rounded-full text-xs font-bold">CONFIRMADA</span>
+                        </td>
+                        <td class="py-3 px-4 text-right" th:text="${c.articulos}">2</td>
+                        <!-- En rojo si algún artículo no cuadró -->
+                        <td class="py-3 px-4 text-right font-semibold"
+                            th:classappend="${c.conDiferencia > 0} ? 'text-rose-700' : 'text-emerald-700'"
+                            th:text="${c.conDiferencia}">0</td>
+                        <td class="py-3 px-4 text-right">
+                            <a th:href="@{/conciliacion/{id}(id=${c.id})}" class="font-semibold text-amber-700 hover:underline">Ver detalle</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p th:if="${cierres.isEmpty()}" class="p-4 text-stone-500">Todavía no hay conciliaciones registradas.</p>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

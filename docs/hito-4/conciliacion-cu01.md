@@ -19,6 +19,7 @@ POST /conciliacion                 → guarda el BORRADOR y redirige a la vista 
 GET  /conciliacion/{id}            → tabla: anterior + recibido − salida = esperado vs. contado → diferencia
 POST /conciliacion/{id}/confirmar  → CONFIRMADA, lo contado pasa a existencia y se muestran las alertas
 POST /conciliacion/{id}/descartar  → borra el borrador (no queda nada guardado)
+GET  /conciliacion/historial       → cierres anteriores: fecha, total Z, estado, artículos y cuántos con diferencia
 ```
 
 ## 3. Criterios de aceptación y dónde se cumplen
@@ -32,6 +33,7 @@ POST /conciliacion/{id}/descartar  → borra el borrador (no queda nada guardado
 | HU-02 | 2. Señalar los artículos con diferencia | `DetalleConciliacion.tieneDiferencia()`, filas en rojo en `resumen.html` | `sinDiferenciaCuandoLoContadoCuadra` |
 | HU-02 | 3. Al confirmar, se guarda la diferencia y lo contado queda como existencia de partida | `ConciliacionDiaria.confirmar()`, `ConciliacionService.confirmar` | `alConfirmarLoContadoQuedaComoExistenciaYSeMuestraLaAlerta` |
 | HU-02 | 4. Si un insumo queda en su umbral o por debajo, mostrar la alerta | `InsumoConfigRepository.buscarInsumosEnAlerta`, recuadro rojo en `resumen.html` | ídem |
+| HU-02 | Compromiso E4: "consultar cierres previos" | `ConciliacionRepository.buscarHistorial`, `ConciliacionService.historial`, `historial.html` | `historialListaLosCierresPreviosDelMasRecienteAlMasAntiguo`, `historialMuestraLosCierresPreviosConEnlaceAlDetalle` |
 
 ## 4. Qué se construyó
 
@@ -42,10 +44,10 @@ POST /conciliacion/{id}/descartar  → borra el borrador (no queda nada guardado
 | negocio | `ConciliacionService` | Reglas y transacciones del CU-01. |
 | negocio | `EstadoConciliacion` | Enum `BORRADOR` / `CONFIRMADA` (antes era un `String`). |
 | negocio | `ReglaDeNegocioException`, `ConciliacionDuplicadaException`, `ConciliacionNoEncontradaException` | Errores de negocio (la `BusinessRuleException` de la Entrega 3). |
-| negocio | `ConteoArticulo`, `InsumoEnAlerta` | `record` que llevan datos entre capas. |
+| negocio | `ConteoArticulo`, `InsumoEnAlerta`, `CierrePrevio` | `record` que llevan datos entre capas. |
 | negocio | `ConciliacionDiaria.confirmar()`, `DetalleConciliacion.calcular()` / `tieneDiferencia()` | Reglas que viven en las entidades. |
 | persistencia | `ConciliacionRepository` (+2 métodos), `DetalleConciliacionRepository`, `DetalleTandaInsumoRepository`, `InsumoConfigRepository`, `InsumoRepository` (+1 método) | Consultas. |
-| templates | `conciliacion/nueva.html`, `conciliacion/resumen.html` | Vistas Thymeleaf con Tailwind. Campos grandes y teclado numérico (criterio UX de la Entrega 3). |
+| templates | `conciliacion/nueva.html`, `conciliacion/resumen.html`, `conciliacion/historial.html` | Vistas Thymeleaf con Tailwind. Campos grandes y teclado numérico (criterio UX de la Entrega 3). |
 
 ## 5. Decisiones de diseño
 
@@ -104,7 +106,7 @@ vigentes son de CU-02-HU-01 (`/inventario/alertas`), a la que se enlaza.
 ## 7. Cómo probar
 
 ```bash
-./mvnw test              # 20 pruebas: 3 unitarias + integración del servicio + MockMvc
+./mvnw test              # 22 pruebas: 3 unitarias + integración del servicio + MockMvc
 ./mvnw spring-boot:run   # http://localhost:8080/conciliacion
 ```
 

@@ -100,6 +100,17 @@ public class ConciliacionService {
         return detalleRepository.buscarPorConciliacion(conciliacionId);
     }
 
+    /**
+     * Cierres previos: todas las conciliaciones, de la más reciente a la más antigua, con
+     * cuántos artículos tiene cada una y cuántos no cuadraron. Cumple el compromiso de la
+     * Entrega 4 para CU-01-HU-02: "permite confirmar el cierre diario y consultar cierres
+     * previos".
+     */
+    @Transactional(readOnly = true)
+    public List<CierrePrevio> historial() {
+        return conciliacionRepository.buscarHistorial();
+    }
+
     /** Insumos en su umbral o por debajo (CU-01-HU-02, criterio 4). */
     @Transactional(readOnly = true)
     public List<InsumoEnAlerta> insumosEnAlerta() {

@@ -20,7 +20,11 @@
     <div th:replace="~{fragments/layout :: navbar}"></div>
 
     <main class="flex-grow max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        <h1 class="text-2xl font-bold text-stone-900 mb-1">CU-01: Conciliar el día</h1>
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+            <h1 class="text-2xl font-bold text-stone-900">CU-01: Conciliar el día</h1>
+            <!-- Cierres previos (compromiso de la Entrega 4) -->
+            <a th:href="@{/conciliacion/historial}" class="text-sm font-semibold text-amber-700 hover:underline">Ver cierres anteriores &rarr;</a>
+        </div>
         <p class="text-stone-600 mb-6">
             Digite lo vendido según el reporte Z y lo que contó en bodega y nevera.
             Al guardar, el sistema calcula las diferencias; nada cambia hasta que confirme.

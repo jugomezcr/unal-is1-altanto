@@ -77,6 +77,16 @@ class ConciliacionControllerTest {
     }
 
     @Test
+    void historialMuestraLosCierresPreviosConEnlaceAlDetalle() throws Exception {
+        mockMvc.perform(get("/conciliacion/historial"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("conciliacion/historial"))
+                .andExpect(content().string(containsString("01/11/2026")))
+                .andExpect(content().string(containsString("02/11/2026")))
+                .andExpect(content().string(containsString("/conciliacion/1\"")));
+    }
+
+    @Test
     void resumenMuestraLasLineasYUnaConciliacionInexistenteDa404() throws Exception {
         mockMvc.perform(get("/conciliacion/1"))
                 .andExpect(status().isOk())

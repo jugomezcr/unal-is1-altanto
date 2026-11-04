@@ -164,6 +164,28 @@ class ConciliacionServiceTest {
     }
 
     @Test
+    void historialListaLosCierresPreviosDelMasRecienteAlMasAntiguo() {
+        // Un cierre nuevo el 03/11, con la harina descuadrada (14 en vez de 15)
+        service.registrarBorrador(DIA, new BigDecimal("90000"), conteos(Map.of(HARINA, "14"), Map.of()));
+
+        List<CierrePrevio> historial = service.historial();
+
+        // Orden: 03/11 (nuevo), 02/11 (borrador semilla), 01/11 (confirmada semilla)
+        assertThat(historial).extracting(CierrePrevio::fecha)
+                .containsExactly(DIA, LocalDate.of(2026, 11, 2), LocalDate.of(2026, 11, 1));
+        // 03/11: los 7 artículos conciliables y 1 con diferencia (la harina)
+        assertThat(historial.get(0).articulos()).isEqualTo(service.articulosAConciliar().size());
+        assertThat(historial.get(0).conDiferencia()).isEqualTo(1L);
+        // 02/11: borrador sin líneas → aparece igual, con 0 y 0 (gracias al LEFT JOIN)
+        assertThat(historial.get(1).articulos()).isZero();
+        assertThat(historial.get(1).esBorrador()).isTrue();
+        // 01/11: confirmada, 2 líneas que cuadraron
+        assertThat(historial.get(2).estado()).isEqualTo(EstadoConciliacion.CONFIRMADA);
+        assertThat(historial.get(2).articulos()).isEqualTo(2L);
+        assertThat(historial.get(2).conDiferencia()).isZero();
+    }
+
+    @Test
     void descartarElBorradorNoDejaNadaGuardado() {
         ConciliacionDiaria c = service.registrarBorrador(DIA, BigDecimal.ZERO, conteos(Map.of(), Map.of()));
 

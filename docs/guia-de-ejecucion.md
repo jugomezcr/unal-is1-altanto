@@ -66,6 +66,11 @@ Aparece la página de inicio de Al-Tanto, con un módulo por cada caso de uso de
 6. Extensión 1a: vuelva a **Conciliación (CU-01)** y cambie la fecha a **02/11/2026**
    (ya tiene un borrador) o a la fecha de hoy (ya quedó confirmada). Al guardar, el
    sistema no deja crear otra conciliación y ofrece **Ver la existente**.
+7. Cierres previos: pulse **Ver cierres anteriores**, arriba a la derecha del formulario
+   (o abra <http://localhost:8080/conciliacion/historial>). Aparecen todas las
+   conciliaciones, de la más reciente a la más antigua: la de hoy (CONFIRMADA, con el número de artículos
+   que no cuadraron), la del 02/11/2026 (BORRADOR) y la del 01/11/2026 (CONFIRMADA). Con
+   **Ver detalle** se abre la tabla de diferencias de cualquiera de ellas.
 
 > Los módulos **CU-02** (alertas) y **CU-03** (tandas de producción) los están
 > construyendo sus responsables. Mientras tanto, sus páginas muestran "en construcción".

@@ -120,9 +120,14 @@
                 </button>
             </form>
         </div>
-        <div th:unless="${conciliacion.esBorrador()}" class="flex justify-end mt-6">
+        <div th:unless="${conciliacion.esBorrador()}" class="flex justify-end gap-3 mt-6">
+            <a th:href="@{/conciliacion/historial}" class="px-5 py-3 rounded-lg border border-stone-300 text-stone-700 font-semibold hover:bg-stone-100">Ver cierres anteriores</a>
             <a th:href="@{/}" class="px-5 py-3 rounded-lg border border-stone-300 text-stone-700 font-semibold hover:bg-stone-100">Volver al inicio</a>
         </div>
+        <!-- Si es borrador, el enlace al historial va aparte para no confundirlo con Confirmar/Descartar -->
+        <p th:if="${conciliacion.esBorrador()}" class="mt-4 text-right text-sm">
+            <a th:href="@{/conciliacion/historial}" class="font-semibold text-amber-700 hover:underline">Ver cierres anteriores &rarr;</a>
+        </p>
     </main>
 
     <div th:replace="~{fragments/layout :: footer}"></div>
