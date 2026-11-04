@@ -33,10 +33,11 @@ SELECT * FROM (VALUES
 (3, 'INS-MAR-01', 'Margarina Industrial Hojaldre', 'Grasa vegetal para masa y hojaldre', 'INSUMO', 'KILOGRAMO', 12.000, TRUE),
 (4, 'INS-AZU-01', 'Azúcar Blanca Refinada', 'Azúcar para formulación de pan dulce', 'INSUMO', 'KILOGRAMO', 8.500, TRUE),
 (5, 'INS-QUE-01', 'Queso Campesino Rallado', 'Queso fresco para pan de queso y almojábanas', 'INSUMO', 'KILOGRAMO', 6.000, TRUE),
--- Productos Terminados (Venta de Mostrador)
-(10, 'PRD-PAN-01', 'Pan Francés Tradicional', 'Pan baguette crocante por unidad', 'PRODUCTO_VENTA', 'UNIDAD', 45.000, TRUE),
-(11, 'PRD-PAN-02', 'Pan Dulce Trenza', 'Pan especial con queso y bocadillo', 'PRODUCTO_VENTA', 'UNIDAD', 30.000, TRUE),
-(12, 'PRD-BEB-01', 'Kumis Artesanal 250ml', 'Bebida fermentada en botella de vidrio', 'PRODUCTO_VENTA', 'UNIDAD', 18.000, TRUE)
+-- Productos: ELABORADO = pan horneado en tandas (no se concilia); REVENTA = se compra y revende (si se concilia)
+(10, 'PRD-PAN-01', 'Pan Francés Tradicional', 'Pan baguette crocante por unidad', 'PRODUCTO_ELABORADO', 'UNIDAD', 45.000, TRUE),
+(11, 'PRD-PAN-02', 'Pan Dulce Trenza', 'Pan especial con queso y bocadillo', 'PRODUCTO_ELABORADO', 'UNIDAD', 30.000, TRUE),
+(12, 'PRD-BEB-01', 'Kumis Artesanal 250ml', 'Bebida fermentada en botella de vidrio', 'PRODUCTO_REVENTA', 'UNIDAD', 18.000, TRUE),
+(13, 'PRD-BEB-02', 'Gaseosa Postobón 400ml', 'Gaseosa personal en botella PET', 'PRODUCTO_REVENTA', 'UNIDAD', 50.000, TRUE)
 ) AS v (id, codigo, nombre, descripcion, tipo_articulo, unidad_medida, existencia_actual, activo)
 WHERE NOT EXISTS (SELECT 1 FROM articulos);
 
@@ -56,7 +57,8 @@ INSERT INTO productos_venta_config (articulo_id, codigo_plu, precio_venta_unitar
 SELECT * FROM (VALUES
 (10, 101, 800.00),
 (11, 102, 1200.00),
-(12, 201, 3500.00)
+(12, 201, 3500.00),
+(13, 202, 2500.00)
 ) AS v (articulo_id, codigo_plu, precio_venta_unitario)
 WHERE NOT EXISTS (SELECT 1 FROM productos_venta_config);
 
@@ -71,8 +73,8 @@ WHERE NOT EXISTS (SELECT 1 FROM conciliaciones_diarias);
 -- 6. DETALLES_CONCILIACION
 INSERT INTO detalles_conciliacion (id, conciliacion_id, articulo_id, existencia_anterior, cantidad_recibida, cantidad_salida, existencia_esperada, cantidad_contada, diferencia)
 SELECT * FROM (VALUES
-(1, 1, 10, 20.000, 80.000, 75.000, 25.000, 25.000, 0.000),
-(2, 1, 1, 65.000, 0.000, 50.000, 15.000, 15.000, 0.000)
+(1, 1, 12, 20.000, 0.000, 2.000, 18.000, 18.000, 0.000),
+(2, 1, 1, 40.000, 0.000, 25.000, 15.000, 15.000, 0.000)
 ) AS v (id, conciliacion_id, articulo_id, existencia_anterior, cantidad_recibida, cantidad_salida, existencia_esperada, cantidad_contada, diferencia)
 WHERE NOT EXISTS (SELECT 1 FROM detalles_conciliacion);
 

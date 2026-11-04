@@ -13,6 +13,25 @@ import java.math.BigDecimal;
 @Table(name = "articulos")
 public class Articulo {
 
+    // -------------------------------------------------------------------------
+    // Valores posibles de la columna tipo_articulo.
+    // "public static final" = constante compartida por toda la clase (no por objeto).
+    // Así se escribe Articulo.TIPO_INSUMO en vez de repetir el texto "INSUMO".
+    // -------------------------------------------------------------------------
+
+    /** Materia prima del obrador (harina, levadura, margarina...). Se concilia (CU-01). */
+    public static final String TIPO_INSUMO = "INSUMO";
+
+    /** Producto que se compra y se revende tal cual (kumis, gaseosas). Se concilia (CU-01). */
+    public static final String TIPO_PRODUCTO_REVENTA = "PRODUCTO_REVENTA";
+
+    /**
+     * Producto que se hornea en el obrador (pan). Es el producto de una tanda (CU-03).
+     * NO se concilia: según la Entrega 2 (HEFESTO-02), el pan no vendido no se registra
+     * en el inventario y "la conciliación cubre insumos y productos de reventa".
+     */
+    public static final String TIPO_PRODUCTO_ELABORADO = "PRODUCTO_ELABORADO";
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "articulo_seq")
     @SequenceGenerator(name = "articulo_seq", sequenceName = "articulo_seq", allocationSize = 1)
