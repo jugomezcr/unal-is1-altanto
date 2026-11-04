@@ -38,7 +38,7 @@ guardar datos.
 | `ConciliacionRepository` | `ConciliacionDiaria` | Solo heredados (`save`, `findById`, `findAll`, `deleteById`, `count`). |
 | `TandaProduccionRepository` | `TandaProduccion` | Solo heredados. |
 
-> Con CU-01 se agregaron consultas a `ConciliacionRepository` e `InsumoRepository`, además de `DetalleConciliacionRepository`, `DetalleTandaInsumoRepository` e `InsumoConfigRepository`. Ver [conciliacion-cu01.md](conciliacion-cu01.md).
+> Con CU-01 se agregaron consultas a `ConciliacionRepository` e `InsumoRepository`, además de `DetalleConciliacionRepository`. CU-02 agregó `InsumoConfigRepository`. Ver [conciliacion-cu01.md](conciliacion-cu01.md).
 
 ### 2.3 Test de integración (`src/test/java/co/edu/unal/sweng1/altanto/`)
 

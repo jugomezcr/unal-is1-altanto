@@ -9,7 +9,6 @@
 [![Maven](https://img.shields.io/badge/Maven%20Wrapper-3.10-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)](https://maven.apache.org/wrapper/)
 [![H2](https://img.shields.io/badge/H2-modo%20archivo-1F4E79?style=for-the-badge)](https://www.h2database.com/)
 [![Thymeleaf](https://img.shields.io/badge/Thymeleaf-vistas-005F0F?style=for-the-badge&logo=thymeleaf&logoColor=white)](https://www.thymeleaf.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-CDN-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 
 Ingeniería de Software I · SIA 2016701 · Grupo 4 · 2026-II · Universidad Nacional de Colombia
 

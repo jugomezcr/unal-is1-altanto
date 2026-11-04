@@ -78,6 +78,11 @@ existencia esperada = existencia anterior + lo recibido − lo vendido o consumi
 diferencia          = lo contado − la existencia esperada
 ```
 
+> **Versión simplificada (Hito 4).** Para aprender el framework paso a paso, el código
+> implementa por ahora `esperado = anterior − vendido` (sin recibido ni tandas) y no
+> muestra la alerta al confirmar. Lo aplazado está en la sección 3.2 de
+> [plan-y-trazabilidad.md](hito-4/plan-y-trazabilidad.md).
+
 ### 1.3 Hito 3: el diseño
 Propuso una **arquitectura por capas** (sección 5), un modelo de datos normalizado y
 excepciones de negocio con nombre propio. El código la adaptó para mantenerla simple:
@@ -105,7 +110,7 @@ mismo orden.
 | **JPA / Hibernate** | Traducen entre **objetos Java** y **filas de tablas**, para no escribir SQL a mano | Un intérprete entre el código y la base de datos | `@Entity`, repositorios |
 | **Spring Data JPA** | Crea solos los repositorios (consultas) a partir de una interfaz | Un asistente que adivina la consulta por su nombre | `persistencia/` |
 | **Thymeleaf** | Motor de *plantillas*: HTML con huecos que el servidor llena con datos | Un formulario impreso al que se le escriben los datos | `templates/*.html` |
-| **Tailwind CSS** | Estilos visuales con clases como `bg-white` o `text-lg`. Se carga por internet (CDN) | La pintura y el acabado | `class="..."` en el HTML |
+| **CSS** | Estilos visuales. Hay un solo archivo para toda la aplicación | La pintura y el acabado | `static/estilos.css` |
 | **JUnit + AssertJ** | Librerías para escribir pruebas automáticas | Un inspector que revisa la obra cada vez | `src/test/java/` |
 | **Git + GitHub** | Control de versiones y trabajo en equipo (issues, tablero, PR) | Un historial de cada cambio, con autor y fecha | `.git/`, github.com |
 
@@ -350,8 +355,8 @@ public interface ConciliacionRepository extends JpaRepository<ConciliacionDiaria
     //  Spring "lee" el nombre:  find By FechaConciliacion
     //  y genera:  SELECT * FROM conciliaciones_diarias WHERE fecha_conciliacion = ?
 
-    Optional<ConciliacionDiaria> findFirstByEstadoOrderByFechaConciliacionDesc(EstadoConciliacion e);
-    //  "la primera, filtrando por estado, ordenadas por fecha de mayor a menor"
+    List<ConciliacionDiaria> findAllByOrderByFechaConciliacionDesc();
+    //  "todas, ordenadas por fecha de mayor a menor"
 }
 ```
 
@@ -362,12 +367,14 @@ tablas:
 
 ```java
 @Query("""
-        SELECT COALESCE(SUM(d.cantidadConsumida), 0)
-        FROM DetalleTandaInsumo d
-        WHERE d.insumo.id = :insumoId AND d.tanda.fecha = :fecha
+        SELECT new co.edu.unal.sweng1.altanto.negocio.dto.DatosInsumo(a.codigo, a.nombre, ...)
+        FROM Articulo a, InsumoConfig c
+        WHERE c.articuloId = a.id AND a.activo = true
         """)
-BigDecimal sumarConsumoDelDia(@Param("insumoId") Long insumoId, @Param("fecha") LocalDate fecha);
+List<DatosInsumo> buscarDatosParaPanelAlertas();   // InsumoConfigRepository (CU-02)
 ```
+
+El CU-01 no necesita `@Query`: todas sus consultas son derivadas.
 
 **`Optional<T>`** es una "caja" que puede traer un valor o venir vacía. Sirve para no
 devolver `null`, que es la causa del error más común en Java (`NullPointerException`).
@@ -376,11 +383,9 @@ Repositorios que usa el CU-01:
 
 | Repositorio | Para qué |
 |---|---|
-| `ConciliacionRepository` | Buscar por fecha y la última conciliación confirmada |
-| `DetalleConciliacionRepository` | Las líneas de una conciliación y el último conteo de un artículo |
-| `DetalleTandaInsumoRepository` | Cuánto insumo se gastó en las tandas del día |
+| `ConciliacionRepository` | Buscar por fecha y listar el historial |
+| `DetalleConciliacionRepository` | Las líneas de una conciliación |
 | `InsumoRepository` | Los artículos que se concilian |
-| `InsumoConfigRepository` | Los insumos en su umbral o por debajo (la alerta) |
 
 ---
 
@@ -393,7 +398,7 @@ Repositorios que usa el CU-01:
 @Service
 public class ConciliacionService {
     private final ConciliacionRepository conciliacionRepository;
-    // ...otros 4 repositorios
+    // ...otros 2 repositorios
 
     public ConciliacionService(ConciliacionRepository conciliacionRepository, /* ... */) {
         this.conciliacionRepository = conciliacionRepository;
@@ -407,7 +412,7 @@ sección 4), Spring:
 
 1. encuentra las clases marcadas (`@Service`, `@Controller`, los repositorios),
 2. crea **un** objeto de cada una (se les llama *beans*),
-3. ve que el constructor del servicio pide 5 repositorios y se los pasa,
+3. ve que el constructor del servicio pide 3 repositorios y se los pasa,
 4. ve que el constructor del controlador pide el servicio y se lo pasa.
 
 ```
@@ -421,7 +426,7 @@ La ventaja es que en las pruebas se puede pedir el mismo servicio ya armado, con
 ```java
 @Transactional
 public ConciliacionDiaria registrarBorrador(LocalDate fecha, BigDecimal totalVentasZ, List<ConteoArticulo> conteos) {
-    validarFecha(fecha);                                   // ¿hay errores? → excepción
+    // ¿fecha futura o duplicada? → excepción
     ConciliacionDiaria conciliacion = conciliacionRepository.save(nueva);   // 1. cabecera
     for (ConteoArticulo conteo : conteos) {
         detalleRepository.save(crearDetalle(conciliacion, conteo));         // 2. una línea por artículo
@@ -433,7 +438,7 @@ public ConciliacionDiaria registrarBorrador(LocalDate fecha, BigDecimal totalVen
 Una **transacción** agrupa varias operaciones en la base de datos para que pasen **todas**
 o **ninguna**. Si en la línea 5 de 7 se lanza una excepción, Spring hace **rollback**:
 deshace la cabecera y las 4 líneas ya guardadas. Así se cumple el criterio *"si la
-operación falla, no se guarda nada"*, y hay una prueba que lo demuestra (sección 10).
+operación falla, no se guarda nada"*. (La prueba automática de este rollback se aplazó.)
 
 `@Transactional(readOnly = true)` se usa en los métodos que solo consultan. Es más
 liviano y deja claro que no modifican nada.
@@ -458,7 +463,7 @@ Algunas reglas son tan propias de un objeto que viven **dentro** de él:
 ```java
 // DetalleConciliacion: la fórmula del CU-01
 public void calcular() {
-    this.existenciaEsperada = existenciaAnterior.add(cantidadRecibida).subtract(cantidadSalida);
+    this.existenciaEsperada = existenciaAnterior.subtract(cantidadSalida);
     this.diferencia = cantidadContada.subtract(existenciaEsperada);
 }
 
@@ -477,15 +482,14 @@ public void confirmar() {
 | Decisión | Por qué |
 |---|---|
 | Solo se concilian **insumos** y **productos de reventa**, no el pan | La Entrega 2: *"la conciliación cubre insumos y productos de reventa"*. El pan no vendido no se registra. |
-| **Existencia anterior** = lo contado en la última conciliación confirmada | La Entrega 2: *"lo contado queda como existencia de partida del día siguiente"*. |
-| **Salida** = vendido (reventa) + consumido en tandas del día (insumos) | La fórmula del CU-01. Los insumos no se venden por caja; los productos de reventa no van a tandas. |
-| **Recibido** = 0 por ahora | Las recepciones son del CU-04 (Sprint 2). La columna ya existe. |
+| **Existencia anterior** = la existencia actual del artículo | Es lo más simple. Al confirmar, lo contado pasa a ser la existencia actual, así que el día siguiente parte de ahí. |
+| **Salida** = lo vendido (solo productos de reventa) | Los insumos no se venden por caja. Restar lo consumido en tandas se aplazó hasta que exista CU-03. |
 | Se guarda un **borrador** y luego se confirma | El plan de la Entrega 4 (paso 8) y la Entrega 3 (*"persistencia de borradores"*). |
-| No se concilian fechas futuras ni días anteriores a uno ya confirmado | Garantía mínima: *"los días anteriores no cambian"*. |
+| No se concilian fechas futuras ni dos veces la misma fecha | Criterio 2 de HU-01 y sentido común: no se cuenta lo que no ha pasado. |
 
 ### 7.7 `record`: cajas de datos
-`ConteoArticulo` e `InsumoEnAlerta` son **records**: clases que solo cargan datos y que
-Java completa solas (constructor, getters, etc.):
+`ConteoArticulo` es un **record**: una clase: que solo carga datos y que
+Java completa sola (constructor, getters, etc.):
 
 ```java
 public record ConteoArticulo(Long articuloId, BigDecimal vendido, BigDecimal contado) { }
@@ -543,9 +547,9 @@ public class ConciliacionController {
 | | Validación de **formato** | Validación de **negocio** |
 |---|---|---|
 | Dónde | Anotaciones en `ConciliacionForm` | `ConciliacionService` |
-| Ejemplos | `@NotNull` "Digite lo contado", `@PositiveOrZero` | Fecha duplicada, fecha futura, día ya cerrado |
+| Ejemplos | `@NotNull` "Digite lo contado", `@PositiveOrZero` | Fecha duplicada, fecha futura |
 | Cómo se activa | `@Valid` en el controlador; los errores quedan en `BindingResult` | Excepción → `catch` en el controlador |
-| Se muestra | Junto al campo (`th:errors`) | Recuadro rojo o ámbar arriba |
+| Se muestra | Un aviso arriba del formulario (`#fields.hasErrors('*')`) | Mensaje en rojo arriba |
 
 ### 8.4 Post/Redirect/Get y los mensajes "flash"
 Después de guardar, el controlador **no** muestra la página directamente: redirige.
@@ -562,12 +566,12 @@ sobrevive **a una** redirección y luego desaparece.
 ### 8.5 Thymeleaf en 6 atributos
 ```html
 <form th:action="@{/conciliacion}" th:object="${form}" method="post">   <!-- el formulario trabaja sobre ${form} -->
-  <input type="date" th:field="*{fecha}">                               <!-- enlaza con form.fecha -->
-  <tr th:each="linea, st : *{lineas}">                                 <!-- repite por cada línea -->
+  <input type="date" name="fecha" th:value="${form.fecha}">             <!-- name = setter; th:value = valor actual -->
+  <tr th:each="linea, i : ${form.lineas}">                             <!-- repite por cada línea; i.index = 0, 1, 2... -->
      <td th:text="${linea.nombre}">Harina</td>                          <!-- escribe el valor -->
-     <input th:field="*{lineas[__${st.index}__].contado}">              <!-- lineas[0].contado, lineas[1]... -->
+     <input th:name="|lineas[${i.index}].contado|">                     <!-- name="lineas[0].contado" -->
   </tr>
-  <div th:if="${error}" th:text="${error}"></div>                      <!-- solo si hay error -->
+  <p th:if="${error}" th:text="${error}"></p>                          <!-- solo si hay error -->
 </form>
 ```
 El texto dentro de las etiquetas ("Harina") es un ejemplo que solo se ve si se abre el
@@ -580,8 +584,8 @@ HTML sin servidor. Thymeleaf lo reemplaza por el dato real.
 Este es un caso real con los datos de ejemplo. Puede repetirlo con
 `./mvnw spring-boot:run`.
 
-**Situación:** el 01/11/2026 quedó **confirmado** con *15 kg de harina* contados. Hoy,
-03/11/2026, el Administrador cuenta **14 kg**. No hubo tandas ni recepciones.
+**Situación:** en `data.sql` la harina tiene una existencia de **15 kg**. Hoy, 03/11/2026,
+el Administrador cuenta **14 kg**.
 
 ### Paso A. Abrir el formulario (HU-01)
 ```
@@ -589,19 +593,17 @@ Este es un caso real con los datos de ejemplo. Puede repetirlo con
                                        ├─ service.articulosAConciliar()
                                        │     └─ InsumoRepository: activos de tipo INSUMO o PRODUCTO_REVENTA
                                        │        (7 artículos; el pan queda fuera)
-                                       ├─ service.buscarPorFecha(hoy)  → ¿ya hay una hoy? (extensión 1a)
                                        └─ return "conciliacion/nueva"  → formulario con 7 filas
 ```
 
 ### Paso B. Guardar el borrador (HU-01)
 ```
  Navegador ── POST /conciliacion (fecha, totalZ, lineas[...]) ──▶ ConciliacionController.registrar()
-   ├─ @Valid revisa el formato ──── ¿error? → vuelve a pintar el formulario con los mensajes
+   ├─ @Valid revisa el formato ──── ¿error? → vuelve a pintar el formulario con un aviso
    └─ service.registrarBorrador(...)            ┐
-        ├─ validarFecha: no futura, no repetida,│ UNA transacción:
-        │   posterior al 01/11 (última confirm.)│ si algo falla aquí,
-        ├─ save(cabecera)  → id 100             │ se deshace todo
-        └─ por cada artículo: crearDetalle()    ┘
+        ├─ ¿fecha futura? ¿ya existe esa fecha? │ UNA transacción:
+        ├─ save(cabecera)  → id 100             │ si algo falla aquí,
+        └─ por cada artículo: crearDetalle()    ┘ se deshace todo
    └─ "redirect:/conciliacion/100"
 ```
 
@@ -609,62 +611,55 @@ El cálculo de **la harina** dentro de `crearDetalle()`:
 
 | Dato | De dónde sale | Valor |
 |---|---|---|
-| Existencia anterior | `buscarUltimoConteo`: lo contado el 01/11 (confirmada) | **15** |
-| + Recibido | CU-04 todavía no existe | **0** |
+| Existencia anterior | `articulo.getExistenciaActual()` | **15** |
 | − Vendido | Es un insumo: no se vende por caja | 0 |
-| − Consumido en tandas | `sumarConsumoDelDia(harina, 03/11)` | 0 |
-| **= Esperado** | `calcular()`: 15 + 0 − 0 | **15** |
+| **= Esperado** | `calcular()`: 15 − 0 | **15** |
 | Contado | Lo digitó el Administrador | **14** |
 | **Diferencia** | 14 − 15 | **−1** → falta 1 kg, la fila sale en rojo |
 
 En la base queda:
 ```
  conciliaciones_diarias:  id=100 | fecha=2026-11-03 | total=250000 | estado=BORRADOR
- detalles_conciliacion :  conciliacion=100 | articulo=Harina | anterior=15 | recibida=0 | salida=0 | esperada=15 | contada=14 | diferencia=-1
+ detalles_conciliacion :  conciliacion=100 | articulo=Harina | anterior=15 | salida=0 | esperada=15 | contada=14 | diferencia=-1
                           ...una fila por cada uno de los 7 artículos
  articulos (harina)    :  existencia_actual = 15   ← todavía NO cambia
 ```
 
 ### Paso C. Ver las diferencias (HU-02)
-`GET /conciliacion/100` → `resumen()` carga la cabecera y sus líneas, cuenta cuántas
-`tieneDiferencia()` y pinta `resumen.html`: la tabla con la fila de la harina en rojo y
-los botones **Confirmar** y **Descartar**.
+`GET /conciliacion/100` → `resumen()` carga la cabecera y sus líneas y pinta
+`resumen.html`: la tabla con la fila de la harina en rojo y el botón **Confirmar**.
 
 ### Paso D. Confirmar (HU-02)
 ```
  POST /conciliacion/100/confirmar ──▶ service.confirmar(100)        (una transacción)
    ├─ conciliacion.confirmar()                 → estado = CONFIRMADA
-   ├─ por cada línea: articulo.setExistenciaActual(contado)   → harina = 14
-   │     (sin save(): Hibernate detecta el cambio solo, por "dirty checking")
-   └─ insumoConfigRepository.buscarInsumosEnAlerta()
-         → harina: 14 ≤ umbral 25  →  ALERTA
- ◀── redirect + flash: "Conciliación confirmada" + lista de alertas
+   └─ por cada línea: articulo.setExistenciaActual(contado)   → harina = 14
+         (sin save(): Hibernate detecta el cambio solo, por "dirty checking")
+ ◀── redirect + flash: "Conciliación confirmada"
 ```
 
-El resultado en pantalla: estado **CONFIRMADA** y el recuadro **🚨 Alerta de
-reabastecimiento: Harina de Trigo Especial, 14 (umbral 25) KILOGRAMO**, con un enlace al
-CU-02. Mañana, la existencia anterior de la harina será **14**.
+Mañana, la existencia anterior de la harina será **14**. El panel de alertas
+(`/inventario/alertas`, CU-02) la mostrará en alerta porque quedó por debajo de su umbral.
 
 ### Paso E. Los caminos alternativos
 | Si… | El sistema… | Dónde |
 |---|---|---|
-| Elige el 02/11 (ya tiene un borrador) | No crea otra conciliación y muestra "Ver la existente" | `ConciliacionDuplicadaException` (extensión 1a) |
-| Deja vacío un "Contado" | Muestra "Digite lo contado." junto al campo | `@NotNull` en `ConciliacionForm` |
+| Elige el 01/11 (ya tiene una conciliación) | No crea otra y muestra "Ver la conciliación existente" | `ConciliacionDuplicadaException` (extensión 1a) |
+| Deja vacío un "Contado" | Muestra un aviso arriba del formulario | `@NotNull` en `ConciliacionForm` |
 | Pulsa **Cancelar** en el formulario | No envía nada, así que no se guarda nada | Es solo un enlace a `/` |
-| Pulsa **Descartar borrador** | Borra la cabecera y sus líneas | `service.descartar()` |
-| Quiere ver días anteriores | Lista los cierres previos con su estado y cuántos artículos no cuadraron | `GET /conciliacion/historial` → `service.historial()` |
+| Quiere ver días anteriores | Lista los cierres previos con su estado | `GET /conciliacion/historial` → `service.historial()` |
 | Intenta confirmar dos veces | Muestra "ya está confirmada" | `ConciliacionDiaria.confirmar()` |
 
 ### Mapa de archivos del CU-01
 ```
- presentacion/controlador/ConciliacionController.java   las 6 rutas
+ presentacion/controlador/ConciliacionController.java   las 5 rutas
  presentacion/formulario/ConciliacionForm.java          el formulario y sus validaciones
  templates/conciliacion/nueva.html                      pantalla HU-01
  templates/conciliacion/resumen.html                    pantalla HU-02 (diferencias y confirmar)
  templates/conciliacion/historial.html                  pantalla HU-02 (cierres previos)
  negocio/servicio/ConciliacionService.java              las reglas y transacciones
  negocio/excepcion/*Exception.java                      errores de negocio
- negocio/dto/ConteoArticulo, InsumoEnAlerta, CierrePrevio   records
+ negocio/dto/ConteoArticulo.java                        record: lo digitado por artículo
  persistencia/entidad/ConciliacionDiaria.java           cabecera + confirmar()
  persistencia/entidad/DetalleConciliacion.java          línea + calcular() + tieneDiferencia()
  persistencia/entidad/EstadoConciliacion.java           BORRADOR / CONFIRMADA
@@ -680,40 +675,44 @@ daña, la prueba falla y avisa antes de que el problema llegue al usuario. Se co
 `./mvnw test`, y también corren solas en GitHub en cada pull request
 (`.github/workflows/ci.yml`).
 
+Son **pocas a propósito**: una de cada tipo, para aprender. Cuando el equipo practique TDD
+se agregarán más. Léalas en este orden:
+
 | Tipo | Archivo | Qué arranca | Qué prueba |
 |---|---|---|---|
-| **Unitaria** | `persistencia/entidad/DetalleConciliacionTest` | Nada: solo `new` | La fórmula, `tieneDiferencia()`, confirmar dos veces |
-| **Integración** | `negocio/servicio/ConciliacionServiceTest` | Spring + H2 en memoria | Todos los criterios con datos reales |
-| **Rollback** | `negocio/servicio/ConciliacionRollbackTest` | Spring + H2, **sin** `@Transactional` | Que si una línea falla no quede **nada** guardado |
-| **Web** | `presentacion/controlador/ConciliacionControllerTest` | Spring + MockMvc | Las pantallas: formulario, redirección, 404, mensajes |
-| Repositorio | `persistencia/repositorio/InsumoRepositoryTest` | Solo JPA (`@DataJpaTest`) | Una consulta |
+| **Unitaria** | `persistencia/entidad/DetalleConciliacionTest` | Nada: solo `new` | La fórmula y que solo se confirma una vez |
+| **Integración** | `negocio/servicio/ConciliacionServiceTest` | Spring + H2 en memoria | Guardar, fecha duplicada y confirmar |
+| **Web** | `presentacion/controlador/ConciliacionControllerTest` | Spring + MockMvc | Que el formulario muestra los artículos |
+| Arranque | `AltantoApplicationTests` | Spring | Que la aplicación arranca |
+| Repositorio | `persistencia/repositorio/InsumoRepositoryTest` | Solo JPA (`@DataJpaTest`) | Una consulta derivada |
 
 Las pruebas están en los mismos paquetes que la clase que prueban (en `src/test/java`).
+Las del CU-02 (alertas) están en `negocio/calculo/` y `negocio/servicio/`.
 
-La estructura de una prueba (*preparar → actuar → verificar*):
+La estructura de una prueba (*preparar → actuar → verificar*), como en pytest:
 
 ```java
 @Test
-void alConfirmarLoContadoQuedaComoExistenciaYSeMuestraLaAlerta() {
+void confirmarDejaLoContadoComoExistencia() {
     // preparar: un borrador con 14 kg de harina
-    ConciliacionDiaria c = service.registrarBorrador(DIA, ..., conteos(Map.of(HARINA, "14"), Map.of()));
+    ConciliacionDiaria c = service.registrarBorrador(DIA, new BigDecimal("250000"), conteosConHarinaEn14());
     // actuar
-    List<InsumoEnAlerta> alertas = service.confirmar(c.getId());
+    service.confirmar(c.getId());
     // verificar
-    assertThat(articuloRepository.findById(HARINA).orElseThrow().getExistenciaActual()).isEqualByComparingTo("14");
-    assertThat(alertas).extracting(InsumoEnAlerta::nombre).contains("Harina de Trigo Especial");
+    assertThat(articuloRepository.findById(HARINA).orElseThrow().getExistenciaActual())
+            .isEqualByComparingTo("14");
 }
 ```
 
 **¿Por qué las pruebas no se estorban entre sí?** `@Transactional` en una clase de prueba
 deshace todo al terminar **cada** prueba, así cada una empieza con los datos de ejemplo
-intactos. La prueba de rollback **no** lo lleva a propósito: necesita ver que el servicio,
-por sí solo, deshizo lo suyo.
+intactos.
 
 **MockMvc** simula el navegador sin abrir uno real:
 ```java
-mockMvc.perform(post("/conciliacion").param("fecha", "2026-11-02") ...)
-       .andExpect(content().string(containsString("Ver la existente")));
+mockMvc.perform(get("/conciliacion"))
+       .andExpect(status().isOk())
+       .andExpect(content().string(containsString("Harina de Trigo Especial")));
 ```
 
 ---
@@ -772,7 +771,10 @@ Es el mismo camino que siguió el CU-01. Sirve para CU-02-HU-01 (Pedro) y CU-03-
 5. **Pantalla:** un `@Controller` en `presentacion/controlador/` (y quitar la ruta provisional
    de `HomeController`), un objeto de formulario en `presentacion/formulario/` si hace falta y
    la plantilla en `templates/`.
-6. **Pruebas:** al menos una por criterio de aceptación (sección 10).
+6. **Pruebas:** pocas y simples para empezar, una de cada tipo (sección 10). Se agregan más
+   a medida que el equipo domine TDD.
+   **Regla de oro:** primero lo más simple que cumpla la historia. No construir pensando en
+   funciones que todavía no existen.
 7. **Comentar** el código para quien no sabe Java: qué hace cada clase, método y anotación.
 8. **Documentar** en `docs/hito-N/`, con una tabla de criterio → código → prueba como la de
    [conciliacion-cu01.md](hito-4/conciliacion-cu01.md).
@@ -781,8 +783,6 @@ Es el mismo camino que siguió el CU-01. Sirve para CU-02-HU-01 (Pedro) y CU-03-
 10. `./mvnw test` → commit → PR → mover el issue en el tablero.
 
 Piezas que ya existen y se pueden reutilizar:
-- `InsumoConfigRepository.buscarInsumosEnAlerta()`: los insumos bajo **su** umbral (CU-02).
-- `DetalleTandaInsumoRepository`: los consumos por tanda (CU-03).
 - `Articulo.TIPO_PRODUCTO_ELABORADO`: el producto de una tanda es un pan (CU-03).
 
 ---
@@ -795,7 +795,6 @@ Piezas que ya existen y se pueden reutilizar:
 | **Bean** | Objeto que Spring crea y administra (servicios, controladores, repositorios). |
 | **`BigDecimal`** | Número decimal exacto. Se usa para kilos y pesos. Se opera con `.add()`, `.subtract()` y se compara con `compareTo`. |
 | **Borrador** | Conciliación guardada pero sin confirmar. Todavía no cambia las existencias. |
-| **CDN** | Servidor en internet del que se cargan archivos (aquí, Tailwind). |
 | **Consulta derivada** | Consulta que Spring Data genera a partir del nombre del método (`findByFecha...`). |
 | **Controlador** | Clase `@Controller` que atiende las URLs y elige qué vista mostrar. |
 | **Dirty checking** | Hibernate detecta solo los cambios en los objetos leídos dentro de una transacción y los guarda al final. |

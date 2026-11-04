@@ -59,21 +59,22 @@ Aparece la página de inicio de Al-Tanto, con un módulo por cada caso de uso de
 3. En **Contado**, digite una cantidad para cada artículo. En **Vendido**, que solo
    aparece en los productos de reventa (kumis y gaseosa), digite lo vendido.
    Para ver una diferencia, cuente **14** de *Harina de Trigo Especial* (se esperaban 15).
-4. Pulse **Guardar y ver diferencias**. Aparece la tabla *anterior + recibido − vendido o
-   consumido = esperado*, comparada con lo contado. Las filas que no cuadran salen en rojo.
-5. Pulse **Confirmar conciliación**. El estado pasa a **CONFIRMADA** y aparece la
-   **alerta de reabastecimiento** de la harina (14 kg está por debajo de su umbral de 25 kg).
+4. Pulse **Guardar y ver diferencias**. Aparece la tabla *anterior − vendido = esperado*,
+   comparada con lo contado. Las filas que no cuadran salen en rojo.
+5. Pulse **Confirmar conciliación**. El estado pasa a **CONFIRMADA** y lo contado queda
+   como existencia actual (la harina queda en 14 kg).
 6. Extensión 1a: vuelva a **Conciliación (CU-01)** y cambie la fecha a **02/11/2026**
    (ya tiene un borrador) o a la fecha de hoy (ya quedó confirmada). Al guardar, el
-   sistema no deja crear otra conciliación y ofrece **Ver la existente**.
-7. Cierres previos: pulse **Ver cierres anteriores**, arriba a la derecha del formulario
-   (o abra <http://localhost:8080/conciliacion/historial>). Aparecen todas las
-   conciliaciones, de la más reciente a la más antigua: la de hoy (CONFIRMADA, con el número de artículos
-   que no cuadraron), la del 02/11/2026 (BORRADOR) y la del 01/11/2026 (CONFIRMADA). Con
-   **Ver detalle** se abre la tabla de diferencias de cualquiera de ellas.
+   sistema no deja crear otra conciliación y ofrece **Ver la conciliación existente**.
+7. Cierres previos: pulse **Ver cierres anteriores** (o abra
+   <http://localhost:8080/conciliacion/historial>). Aparecen todas las conciliaciones, de
+   la más reciente a la más antigua: la de hoy (CONFIRMADA), la del 02/11/2026 (BORRADOR) y
+   la del 01/11/2026 (CONFIRMADA). Con **Ver diferencias** se abre la tabla de cualquiera.
+8. Alertas (CU-02): en el menú, entre a **Alertas (CU-02)**. La harina aparece en alerta
+   porque quedó por debajo de su umbral de 25 kg.
 
-> Los módulos **CU-02** (alertas) y **CU-03** (tandas de producción) los están
-> construyendo sus responsables. Mientras tanto, sus páginas muestran "en construcción".
+> El módulo **CU-03** (tandas de producción) lo está construyendo su responsable.
+> Mientras tanto, su página muestra "en construcción".
 
 ## Paso 5 (opcional). Ver la base de datos
 

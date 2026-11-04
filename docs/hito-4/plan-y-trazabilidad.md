@@ -41,7 +41,7 @@ Las historias de los Sprint 2 y 3 siguen en *To Do*.
 
 | Fase | Pasos | Responsable | Estado |
 |---|---|---|---|
-| 1. Infraestructura base | 1–3: Spring Boot 4 / Java 21 / `mvnw`, H2 en archivo `./data/altanto.mv.db`, Thymeleaf + Tailwind (CDN) | Julián Sánchez (`Julsanchezc`) | Hecho |
+| 1. Infraestructura base | 1–3: Spring Boot 4 / Java 21 / `mvnw`, H2 en archivo `./data/altanto.mv.db`, Thymeleaf + HTML plano con `static/estilos.css` (Tailwind se quitó para simplificar, ver 3.2) | Julián Sánchez (`Julsanchezc`) | Hecho |
 | 2. Persistencia | 4–5: `schema.sql` y `data.sql` (Pedro Correa, `pedroerjes`). 6–7: entidades JPA y repositorios (Leonardo Betancur, `BETAPANDERETA`) | Pedro y Leonardo | Hecho (PR #19). Ver [persistencia-jpa-y-repositorios.md](persistencia-jpa-y-repositorios.md) |
 | 3. Historias de usuario | 8–9: CU-01-HU-01 y CU-01-HU-02 (rama `feat/C1H1`). 10: CU-02-HU-01 (Pedro). 11: CU-03-HU-01 (Brayan Nikolás) | Juan Pablo, Pedro y Brayan Nikolás | 8–9 implementados y probados, ver [conciliacion-cu01.md](conciliacion-cu01.md). 10–11 pendientes |
 | 4. Verificación y cierre | 12: `./mvnw spring-boot:run` arranca sin errores. 13: mover #2, #3, #5 y #8 a *In Review* o *Done*. 14: todos con commits significativos | Todo el equipo | Pendiente |
@@ -62,7 +62,7 @@ al repositorio de referencia, como se ve en esta tabla:
 | PostgreSQL 3FN | H2 en modo archivo | El plan de la Entrega 4 (paso 2) fija H2. El esquema conserva 3FN, `NUMERIC` para cantidades y dinero, y llaves foráneas. |
 | 4 capas (presentación, aplicación, dominio, persistencia) más una capa transversal | 3 paquetes: `presentacion` (`controlador`, `formulario`), `negocio` (`servicio` con `@Transactional`, `calculo`, `dto`, `excepcion`) y `persistencia` (`entidad`, `repositorio`) | Son las 3 capas del repositorio de referencia, con subpaquetes por tipo de clase. Los servicios de `negocio` cumplen el papel de la capa de aplicación. A diferencia del repositorio de referencia, las entidades `@Entity` están en `persistencia/entidad` (junto a lo que crea y consulta las tablas) y no en `negocio`; ver `docs/arquitectura.md`. |
 | `ConciliacionTurno` con `TipoTurno` y efectivo contado | `ConciliacionDiaria`: una por fecha, con el total del reporte Z | La Entrega 2 define la conciliación **por día** (extensión 1a). Además, efectivo vs. billeteras queda *fuera por ahora* (Entregas 1 y 2). |
-| Consumo teórico por `Receta` | La salida de cada artículo = lo vendido + lo consumido en tandas registradas | Recetas y rendimiento calculado quedan *fuera por ahora* (Entrega 1, tabla 1). |
+| Consumo teórico por `Receta` | La salida de cada artículo = lo vendido (el consumo en tandas se aplazó, ver 3.2) | Recetas y rendimiento calculado quedan *fuera por ahora* (Entrega 1, tabla 1). |
 | `AjusteInventario` (mermas) | No se implementa. La diferencia queda registrada por artículo | Las mermas quedan *fuera por ahora* (Entregas 1 y 2). |
 | `Insumo` con herencia `MateriaPrima` / `ProductoReventa` (TPH) | `Articulo` con la columna `tipo_articulo` (`INSUMO` / `PRODUCTO_VENTA`) | Es la misma tabla única (TPH) que propone la Entrega 3, pero sin la herencia en Java. |
 | `PedidoReabastecimiento`, `EstadoPedido`, `PackagingRounder` | Sprint 2 (CU-02-HU-02) | No pertenecen al Sprint 1. |
@@ -81,6 +81,26 @@ las diferencias con lo que realmente se construyó:
 | Entidades `ReporteZ`, `ConciliacionTurno`, `Insumo` | `ConciliacionDiaria` (con el total del reporte Z), `DetalleConciliacion`, `Articulo` | Nombres reales: sección 2.1 de [persistencia-jpa-y-repositorios.md](persistencia-jpa-y-repositorios.md). |
 | CU-01: capturar el "turno" y el "efectivo en caja" | Conciliación por **día**, con el total del reporte Z | La Entrega 2 define la conciliación por día (extensión 1a). Efectivo vs. billeteras queda *fuera por ahora* (Entregas 1 y 2). |
 | Recetas en `data.sql` y mermas teóricas | No se implementan | Recetas y mermas quedan *fuera por ahora* (Entrega 1). El mismo compromiso aplaza ese cálculo a la E5. |
+
+### 3.2 Simplificación para aprender (2026-11-04)
+
+El equipo nunca había usado Java ni Spring Boot. Se decidió **priorizar el entendimiento y
+la coherencia sobre la completitud**: el CU-01 quedó en su núcleo, con pocas pruebas que
+sirven de ejemplo, y las plantillas pasaron a HTML plano. Lo que se quitó se retomará en
+iteraciones siguientes, cuando el equipo domine el framework y TDD.
+
+| Se mantiene (CU-01) | Se aplaza para iterar |
+|---|---|
+| HU-01: formulario de vendido y contado; guardar como BORRADOR | Restar lo **consumido en tandas** (depende de CU-03) |
+| HU-01 criterio 2: no dos conciliaciones de la misma fecha; enlace a la existente | Existencia anterior = lo contado en la **última conciliación confirmada** (hoy se usa la existencia actual) |
+| HU-01 criterio 3: `@Transactional`; Cancelar no guarda nada; no se concilian fechas futuras | Regla "solo fechas **posteriores** a la última confirmada" |
+| HU-02 criterios 1 y 2: esperado = anterior − vendido; diferencia en rojo | HU-02 criterio 4: **alerta de reabastecimiento al confirmar** (mientras tanto está el panel de CU-02, `/inventario/alertas`) |
+| HU-02 criterio 3: al confirmar, lo contado queda como existencia | **Descartar** un borrador |
+| Compromiso E4 "consultar cierres previos": lista simple (fecha, total Z, estado) | Conteo de artículos con diferencia en el historial |
+
+Pruebas: CU-01 tiene una prueba unitaria (fórmula y confirmar), tres de integración y una
+web; además está la prueba de arranque. Las pruebas de CU-02 no se tocaron. El detalle está en
+[conciliacion-cu01.md](conciliacion-cu01.md).
 
 ## 4. Cambios compartidos que afectan a todo el equipo
 

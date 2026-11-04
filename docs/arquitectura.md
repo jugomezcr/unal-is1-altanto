@@ -84,8 +84,6 @@ src/main/java/co/edu/unal/sweng1/altanto/
 │   │   └── CalculadoraAlerta        nivel, déficit y cobertura de un insumo
 │   ├── dto/                         records: datos que viajan entre capas
 │   │   ├── ConteoArticulo           formulario → servicio (CU-01)
-│   │   ├── CierrePrevio             consulta → historial (CU-01)
-│   │   ├── InsumoEnAlerta           consulta → alerta al confirmar (CU-01)
 │   │   ├── DatosInsumo              consulta → calculadora (CU-02)
 │   │   └── InsumoPanel, NivelAlerta calculadora → pantalla (CU-02)
 │   └── excepcion/                   Errores de negocio con nombre propio
@@ -101,7 +99,7 @@ src/main/java/co/edu/unal/sweng1/altanto/
     └── repositorio/                 Interfaces de consultas (Spring las implementa)
         ├── InsumoRepository         tabla articulos
         ├── ConciliacionRepository, DetalleConciliacionRepository
-        ├── InsumoConfigRepository, DetalleTandaInsumoRepository, TandaProduccionRepository
+        ├── InsumoConfigRepository, TandaProduccionRepository
         └── FuenteInsumosPersistencia   implementación real de FuenteInsumos
 
 src/main/resources/
@@ -201,13 +199,13 @@ Ejemplo: el Administrador llena el formulario de conciliación y pulsa **Guardar
         │      presentacion/controlador/ConciliacionController.java
         │
 5. ConciliacionService.registrarBorrador(fecha, total, conteos)   ← @Transactional: abre transacción
-   - valida la fecha (no futura, no duplicada, posterior a la última confirmada)
-   - por cada artículo: lo busca, calcula existencia anterior, salida y diferencia
+   - valida la fecha (no futura, no duplicada)
+   - por cada artículo: lo busca, toma su existencia actual, resta lo vendido y calcula la diferencia
    - guarda la cabecera y las líneas
         │      negocio/servicio/ConciliacionService.java
         │
-6. Repositorios: conciliacionRepository.save(...), detalleRepository.save(...),
-   detalleTandaRepository.sumarConsumoDelDia(...)  → Hibernate genera INSERT/SELECT
+6. Repositorios: conciliacionRepository.save(...), detalleRepository.save(...)
+   → Hibernate genera los INSERT
         │      persistencia/repositorio/*.java   +   persistencia/entidad/*.java
         │
 7. Fin del método → commit de la transacción. (Si hubo excepción → rollback: no queda nada.)
@@ -301,17 +299,17 @@ existe, usa `1`. Es el `os.getenv("X", "1")` de Python.
      `findByFechaConciliacion(fecha)` → `SELECT ... WHERE fecha_conciliacion = ?`.
    - **Escritos a mano** con `@Query("...")` en **JPQL**: parece SQL, pero usa nombres de
      clases y atributos Java (`Articulo a`, `a.existenciaActual`), no de tablas y columnas.
-     `SELECT new ...dto.CierrePrevio(...)` arma un record por fila.
+     `SELECT new ...dto.DatosInsumo(...)` arma un record por fila (ver `InsumoConfigRepository`).
 
 | Tabla (`schema.sql`) | Entidad | Repositorio | Lo usa |
 |---|---|---|---|
 | `articulos` | `Articulo` | `InsumoRepository` | CU-01, CU-02, CU-03 |
 | `proveedores` | `Proveedor` | — | (CU-02, próximo sprint) |
-| `insumos_config` | `InsumoConfig` | `InsumoConfigRepository` | CU-01 (alerta), CU-02 |
+| `insumos_config` | `InsumoConfig` | `InsumoConfigRepository` | CU-02 |
 | `conciliaciones_diarias` | `ConciliacionDiaria` | `ConciliacionRepository` | CU-01 |
 | `detalles_conciliacion` | `DetalleConciliacion` | `DetalleConciliacionRepository` | CU-01 |
 | `tandas_produccion` | `TandaProduccion` | `TandaProduccionRepository` | CU-03 |
-| `detalles_tanda_insumo` | `DetalleTandaInsumo` | `DetalleTandaInsumoRepository` | CU-01 (consumo), CU-03 |
+| `detalles_tanda_insumo` | `DetalleTandaInsumo` | — (lo creará CU-03) | CU-03 |
 | `productos_venta_config`, `alertas_reabastecimiento` | — | — | Todavía no se usan |
 
 **Relaciones.** `@ManyToOne` + `@JoinColumn(name = "articulo_id")` hace que
@@ -342,6 +340,7 @@ servicio lanza ReglaDeNegocioException ("no se puede conciliar una fecha futura"
   (`ConciliacionDiaria.confirmar()`).
 - **Por qué `RuntimeException`**: no obliga a escribir `throws` en cada método y Spring
   hace rollback automático con ella. Es como una excepción normal de Python.
+- **Validación de formato en la pantalla**: si falla, el formulario muestra un solo aviso arriba.
 - **No encontrado**: `ConciliacionNoEncontradaException` se traduce a HTTP 404 en
   `ConciliacionController.resumen`.
 
@@ -366,6 +365,9 @@ public String mostrarAlertas(Model model) {
   `th:replace="~{fragments/layout :: navbar}"`.
 - En Thymeleaf, `${x.nombre}` llama `x.getNombre()` (o `x.nombre()` si es un record).
 
+- Las plantillas son HTML plano. Todos los estilos están en un solo archivo,
+  `src/main/resources/static/estilos.css` (Spring sirve `static/` tal cual).
+
 Cada plantilla tiene al inicio un comentario con los atributos `th:` que usa.
 
 ---
@@ -374,6 +376,10 @@ Cada plantilla tiene al inicio un comentario con los atributos `th:` que usa.
 
 Están en `src/test/java`, en el **mismo paquete** que la clase que prueban. `./mvnw test`
 las corre todas (y GitHub las corre en cada pull request).
+
+Son **pocas a propósito**: hay una de cada tipo para aprender. Se agregarán más cuando el
+equipo practique TDD. Para empezar, lea en este orden: `DetalleConciliacionTest` (la más
+simple), `ConciliacionServiceTest` y `ConciliacionControllerTest`.
 
 | Tipo | Anotación | Qué arranca | Ejemplo |
 |---|---|---|---|
