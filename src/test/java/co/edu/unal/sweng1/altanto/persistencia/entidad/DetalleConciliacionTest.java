@@ -1,63 +1,46 @@
 package co.edu.unal.sweng1.altanto.persistencia.entidad;
 
-import co.edu.unal.sweng1.altanto.negocio.excepcion.ReglaDeNegocioException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import co.edu.unal.sweng1.altanto.negocio.excepcion.ReglaDeNegocioException;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 
 /**
- * Pruebas UNITARIAS de las reglas que viven en las entidades del CU-01.
+ * Prueba UNITARIA: no arranca Spring ni la base de datos, solo crea objetos con
+ * {@code new}. Es la prueba más simple posible; buen punto de partida para aprender.
  *
- * <p>"Unitaria" = no arranca Spring ni la base de datos: crea los objetos con
- * {@code new} y revisa el resultado. Por eso corre en milisegundos.</p>
- *
- * <p>Cada método {@code @Test} es una prueba independiente. Su nombre describe lo que
- * se espera. {@code assertThat(x).isEqualTo(y)} (librería AssertJ) hace fallar la
- * prueba si {@code x} no es {@code y}.</p>
+ * <p>Estructura de toda prueba: preparar → actuar → verificar.
+ * {@code @Test} marca el método como prueba (como una función {@code test_...} de pytest).</p>
  */
 class DetalleConciliacionTest {
 
-    /** Crea una línea con los 4 datos de entrada y aplica la fórmula. */
-    private DetalleConciliacion linea(String anterior, String recibida, String salida, String contada) {
-        DetalleConciliacion d = new DetalleConciliacion();
-        d.setExistenciaAnterior(new BigDecimal(anterior));
-        d.setCantidadRecibida(new BigDecimal(recibida));
-        d.setCantidadSalida(new BigDecimal(salida));
-        d.setCantidadContada(new BigDecimal(contada));
-        d.calcular();
-        return d;
-    }
-
     @Test
-    void calculaEsperadaComoAnteriorMasRecibidoMenosSalida() {
-        DetalleConciliacion d = linea("40", "50", "25", "60");
+    void calculaLoEsperadoYLaDiferencia() {
+        // Preparar: había 20, se vendieron 2, se contaron 17
+        DetalleConciliacion d = new DetalleConciliacion();
+        d.setExistenciaAnterior(new BigDecimal("20"));
+        d.setCantidadSalida(new BigDecimal("2"));
+        d.setCantidadContada(new BigDecimal("17"));
 
-        // 40 + 50 − 25 = 65 esperados; se contaron 60 → faltan 5
-        // compareTo == 0 compara el valor sin importar la escala (65 vs 65.000)
-        assertThat(d.getExistenciaEsperada()).isEqualByComparingTo("65");
-        assertThat(d.getDiferencia()).isEqualByComparingTo("-5");
+        // Actuar
+        d.calcular();
+
+        // Verificar: se esperaban 18 y falta 1.
+        // isEqualByComparingTo compara el valor sin importar decimales (18 = 18.000).
+        assertThat(d.getExistenciaEsperada()).isEqualByComparingTo("18");
+        assertThat(d.getDiferencia()).isEqualByComparingTo("-1");
         assertThat(d.tieneDiferencia()).isTrue();
     }
 
     @Test
-    void sinDiferenciaCuandoLoContadoCuadra() {
-        DetalleConciliacion d = linea("20.000", "0", "2", "18.000");
-
-        assertThat(d.getDiferencia()).isEqualByComparingTo("0");
-        assertThat(d.tieneDiferencia()).isFalse();
-    }
-
-    @Test
-    void conciliacionNuevaEsBorradorYSePuedeConfirmarUnaSolaVez() {
+    void unaConciliacionSoloSePuedeConfirmarUnaVez() {
         ConciliacionDiaria c = new ConciliacionDiaria();
-        assertThat(c.esBorrador()).isTrue();
-
         c.confirmar();
-        assertThat(c.getEstado()).isEqualTo(EstadoConciliacion.CONFIRMADA);
 
-        // assertThatThrownBy: la prueba pasa solo si el código lanza esa excepción
+        assertThat(c.getEstado()).isEqualTo(EstadoConciliacion.CONFIRMADA);
+        // assertThatThrownBy: pasa solo si el código lanza esa excepción (como pytest.raises)
         assertThatThrownBy(c::confirmar).isInstanceOf(ReglaDeNegocioException.class);
     }
 }

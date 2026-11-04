@@ -110,7 +110,7 @@ public class ConciliacionForm {
 
         /** Thymeleaf lo usa para decidir si pinta la casilla "Vendido". */
         public boolean esReventa() {
-            return co.edu.unal.sweng1.altanto.persistencia.entidad.Articulo.TIPO_PRODUCTO_REVENTA.equals(tipoArticulo);
+            return Articulo.TIPO_PRODUCTO_REVENTA.equals(tipoArticulo);
         }
 
         // Getters y setters de la fila.

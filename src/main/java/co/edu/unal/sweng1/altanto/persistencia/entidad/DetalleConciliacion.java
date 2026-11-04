@@ -13,15 +13,16 @@ import java.math.BigDecimal;
 
 /**
  * Una línea de la conciliación: lo que DEBERÍA haber de un artículo frente a lo que SE
- * CONTÓ (CU-01, pasos 4 y 5).
+ * CONTÓ (tabla {@code detalles_conciliacion}).
  *
- * <p>Fórmula de la Entrega 2 (CU-01, paso 4, y CU-01-HU-02, criterio 1):</p>
  * <pre>
- *   existencia esperada = existencia anterior + recibido − salida
- *   salida              = vendido (reporte Z) + consumido en tandas
+ *   existencia esperada = existencia anterior − vendido
  *   diferencia          = contado − existencia esperada
  * </pre>
  * <p>Diferencia negativa = falta mercancía. Positiva = sobra. Cero = cuadra.</p>
+ *
+ * <p>La tabla también tiene {@code cantidad_recibida} (compras, CU-04). No se mapea aquí
+ * todavía: la base de datos le pone 0 por defecto.</p>
  */
 @Entity
 @Table(name = "detalles_conciliacion")
@@ -35,8 +36,7 @@ public class DetalleConciliacion {
 
     /**
      * {@code @ManyToOne}: MUCHAS líneas pertenecen a UNA conciliación.
-     * {@code @JoinColumn} indica la columna de la llave foránea ({@code conciliacion_id}).
-     * En Java se trabaja con el objeto completo, no con el número.
+     * {@code @JoinColumn}: la columna de la llave foránea. En Java se usa el objeto, no el número.
      */
     @ManyToOne
     @JoinColumn(name = "conciliacion_id", nullable = false)
@@ -47,27 +47,23 @@ public class DetalleConciliacion {
     @JoinColumn(name = "articulo_id", nullable = false)
     private Articulo articulo;
 
-    /** Lo que quedó contado en la última conciliación confirmada (punto de partida). */
+    /** Existencia del artículo antes de conciliar (punto de partida). */
     @Column(name = "existencia_anterior", nullable = false, precision = 12, scale = 3)
     private BigDecimal existenciaAnterior;
 
-    /** Lo recibido de proveedores en el día. Se llenará con CU-04 (Sprint 2); hoy es 0. */
-    @Column(name = "cantidad_recibida", nullable = false, precision = 12, scale = 3)
-    private BigDecimal cantidadRecibida = BigDecimal.ZERO;
-
-    /** Lo vendido (reporte Z) más lo consumido en las tandas del día. */
+    /** Lo vendido según el reporte Z (0 para insumos). */
     @Column(name = "cantidad_salida", nullable = false, precision = 12, scale = 3)
     private BigDecimal cantidadSalida = BigDecimal.ZERO;
 
-    /** anterior + recibida − salida. Lo calcula {@link #calcular()}. */
+    /** anterior − vendido. Lo calcula {@link #calcular()}. */
     @Column(name = "existencia_esperada", nullable = false, precision = 12, scale = 3)
     private BigDecimal existenciaEsperada;
 
-    /** Lo que el Administrador contó físicamente en bodega y nevera. */
+    /** Lo que el Administrador contó en bodega y nevera. */
     @Column(name = "cantidad_contada", nullable = false, precision = 12, scale = 3)
     private BigDecimal cantidadContada;
 
-    /** contada − esperada. Negativa = falta; positiva = sobra. */
+    /** contado − esperado. */
     @Column(name = "diferencia", nullable = false, precision = 12, scale = 3)
     private BigDecimal diferencia;
 
@@ -75,38 +71,27 @@ public class DetalleConciliacion {
     public DetalleConciliacion() {
     }
 
-    // -------------------------------------------------------------------------
-    // Comportamiento de negocio
-    // -------------------------------------------------------------------------
-
     /**
-     * Calcula la existencia esperada y la diferencia con la fórmula de la clase.
-     * Se llama después de llenar anterior, recibida, salida y contada.
+     * Calcula la existencia esperada y la diferencia. Se llama después de llenar
+     * anterior, salida y contada.
      *
-     * <p>{@code BigDecimal} no usa los operadores + y −. Se usan los métodos
-     * {@code add} (sumar) y {@code subtract} (restar), que devuelven un número NUEVO
-     * (no modifican el original). Ver la sección 3.1 de la doc de persistencia: por qué
-     * {@code BigDecimal} y no {@code double}.</p>
+     * <p>{@code BigDecimal} (números exactos, sin errores de redondeo como {@code double})
+     * no usa + ni −: usa {@code add} y {@code subtract}, que devuelven un número nuevo.</p>
      */
     public void calcular() {
-        this.existenciaEsperada = existenciaAnterior.add(cantidadRecibida).subtract(cantidadSalida);
+        this.existenciaEsperada = existenciaAnterior.subtract(cantidadSalida);
         this.diferencia = cantidadContada.subtract(existenciaEsperada);
     }
 
     /**
-     * CU-01-HU-02, criterio 2: "el sistema señala los artículos que tienen diferencia".
-     * Se usa {@code compareTo} y no {@code equals}, porque para {@code BigDecimal}
-     * {@code equals} también compara la escala (0.000 no "es igual" a 0).
-     *
-     * @return {@code true} si lo contado no cuadra con lo esperado.
+     * {@code true} si lo contado no cuadra. Se usa {@code compareTo} y no {@code equals}:
+     * con {@code BigDecimal}, {@code equals} también compara decimales (0.000 ≠ 0).
      */
     public boolean tieneDiferencia() {
-        return diferencia != null && diferencia.compareTo(BigDecimal.ZERO) != 0;
+        return diferencia.compareTo(BigDecimal.ZERO) != 0;
     }
 
-    // -------------------------------------------------------------------------
-    // Getters y setters
-    // -------------------------------------------------------------------------
+    // Getters y setters: JPA y Thymeleaf leen y escriben los campos a través de ellos.
 
     public Long getId() {
         return id;
@@ -140,14 +125,6 @@ public class DetalleConciliacion {
         this.existenciaAnterior = existenciaAnterior;
     }
 
-    public BigDecimal getCantidadRecibida() {
-        return cantidadRecibida;
-    }
-
-    public void setCantidadRecibida(BigDecimal cantidadRecibida) {
-        this.cantidadRecibida = cantidadRecibida;
-    }
-
     public BigDecimal getCantidadSalida() {
         return cantidadSalida;
     }
@@ -160,10 +137,6 @@ public class DetalleConciliacion {
         return existenciaEsperada;
     }
 
-    public void setExistenciaEsperada(BigDecimal existenciaEsperada) {
-        this.existenciaEsperada = existenciaEsperada;
-    }
-
     public BigDecimal getCantidadContada() {
         return cantidadContada;
     }
@@ -174,9 +147,5 @@ public class DetalleConciliacion {
 
     public BigDecimal getDiferencia() {
         return diferencia;
-    }
-
-    public void setDiferencia(BigDecimal diferencia) {
-        this.diferencia = diferencia;
     }
 }

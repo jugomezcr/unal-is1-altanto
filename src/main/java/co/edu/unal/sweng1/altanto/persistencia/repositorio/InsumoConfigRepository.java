@@ -1,7 +1,6 @@
 package co.edu.unal.sweng1.altanto.persistencia.repositorio;
 
 import co.edu.unal.sweng1.altanto.negocio.dto.DatosInsumo;
-import co.edu.unal.sweng1.altanto.negocio.dto.InsumoEnAlerta;
 import co.edu.unal.sweng1.altanto.persistencia.entidad.InsumoConfig;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,32 +13,15 @@ import org.springframework.data.jpa.repository.Query;
 public interface InsumoConfigRepository extends JpaRepository<InsumoConfig, Long> {
 
     /**
-     * Insumos activos cuya existencia actual está en su umbral mínimo o por debajo.
-     *
-     * <p>Une {@code Articulo} con {@code InsumoConfig} por el id
-     * ({@code c.articuloId = a.id}), porque {@code InsumoConfig} guarda el id como
-     * número y no como relación {@code @ManyToOne}.</p>
-     *
-     * <p>{@code SELECT new ...InsumoEnAlerta(...)} es una "expresión constructora": en
-     * vez de devolver entidades, JPA crea directamente un {@link InsumoEnAlerta} por
-     * fila con los 4 valores indicados. Hay que escribir el nombre completo del paquete.</p>
-     */
-    @Query("""
-            SELECT new co.edu.unal.sweng1.altanto.negocio.dto.InsumoEnAlerta(
-                       a.nombre, a.unidadMedida, a.existenciaActual, c.umbralMinimo)
-            FROM Articulo a, InsumoConfig c
-            WHERE c.articuloId = a.id
-              AND a.activo = true
-              AND a.existenciaActual <= c.umbralMinimo
-            ORDER BY a.nombre
-            """)
-    List<InsumoEnAlerta> buscarInsumosEnAlerta();
-
-    /**
      * Datos crudos de TODOS los insumos activos con configuración, para el panel de
-     * alertas (CU-02-HU-01). A diferencia de {@link #buscarInsumosEnAlerta()}, no filtra
-     * por umbral: el nivel (NORMAL/ALERTA/CRÍTICO) lo decide {@code CalculadoraAlerta}
-     * en Java, no la consulta.
+     * alertas (CU-02-HU-01). El nivel (NORMAL/ALERTA/CRÍTICO) lo decide
+     * {@code CalculadoraAlerta} en Java, no la consulta.
+     *
+     * <p>{@code @Query} escribe la consulta a mano en JPQL: parece SQL pero usa clases y
+     * atributos Java ({@code Articulo a}, {@code a.existenciaActual}). Se une por
+     * {@code c.articuloId = a.id} porque {@code InsumoConfig} guarda el id como número.
+     * {@code SELECT new ...DatosInsumo(...)} crea un record por fila (hay que escribir el
+     * paquete completo).</p>
      */
     @Query("""
             SELECT new co.edu.unal.sweng1.altanto.negocio.dto.DatosInsumo(

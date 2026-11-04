@@ -1,13 +1,12 @@
 package co.edu.unal.sweng1.altanto.presentacion.controlador;
 
 import co.edu.unal.sweng1.altanto.negocio.dto.ConteoArticulo;
-import co.edu.unal.sweng1.altanto.negocio.dto.InsumoEnAlerta;
 import co.edu.unal.sweng1.altanto.negocio.excepcion.ConciliacionDuplicadaException;
 import co.edu.unal.sweng1.altanto.negocio.excepcion.ConciliacionNoEncontradaException;
 import co.edu.unal.sweng1.altanto.negocio.excepcion.ReglaDeNegocioException;
 import co.edu.unal.sweng1.altanto.negocio.servicio.ConciliacionService;
+import co.edu.unal.sweng1.altanto.persistencia.entidad.Articulo;
 import co.edu.unal.sweng1.altanto.persistencia.entidad.ConciliacionDiaria;
-import co.edu.unal.sweng1.altanto.persistencia.entidad.DetalleConciliacion;
 import co.edu.unal.sweng1.altanto.presentacion.formulario.ConciliacionForm;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
@@ -27,86 +26,63 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /**
  * Pantallas del CU-01: Conciliar el día.
  *
- * <table>
- *   <caption>Rutas</caption>
- *   <tr><th>Método y URL</th><th>Qué hace</th><th>Historia</th></tr>
- *   <tr><td>GET /conciliacion</td><td>Muestra el formulario</td><td>HU-01</td></tr>
- *   <tr><td>POST /conciliacion</td><td>Guarda el borrador</td><td>HU-01</td></tr>
- *   <tr><td>GET /conciliacion/historial</td><td>Lista los cierres previos</td><td>HU-02</td></tr>
- *   <tr><td>GET /conciliacion/{id}</td><td>Muestra las diferencias</td><td>HU-02</td></tr>
- *   <tr><td>POST /conciliacion/{id}/confirmar</td><td>Confirma</td><td>HU-02</td></tr>
- *   <tr><td>POST /conciliacion/{id}/descartar</td><td>Descarta el borrador</td><td>HU-02</td></tr>
- * </table>
+ * <pre>
+ *   GET  /conciliacion                 formulario                  (HU-01)
+ *   POST /conciliacion                 guarda el borrador          (HU-01)
+ *   GET  /conciliacion/historial       cierres previos             (HU-02)
+ *   GET  /conciliacion/{id}            diferencias                 (HU-02)
+ *   POST /conciliacion/{id}/confirmar  confirma                    (HU-02)
+ * </pre>
  *
- * <p><b>{@code @Controller}</b>: clase que atiende peticiones del navegador. Cada
- * método devuelve el NOMBRE de una plantilla Thymeleaf (por ejemplo,
- * {@code "conciliacion/nueva"} → {@code templates/conciliacion/nueva.html}) o un
- * {@code "redirect:/..."} para mandar al navegador a otra URL.</p>
- *
- * <p>El controlador solo traduce entre la web y el negocio: no calcula nada ni toca la
- * base de datos; eso lo hace {@link ConciliacionService}.</p>
+ * <p>{@code @Controller}: cada método atiende una URL (como {@code @app.get} en Flask) y
+ * devuelve el NOMBRE de una plantilla: {@code "conciliacion/nueva"} →
+ * {@code templates/conciliacion/nueva.html}. El controlador no calcula nada: solo traduce
+ * entre la web y el servicio.</p>
  */
 @Controller
-@RequestMapping("/conciliacion") // prefijo común de todas las URLs de esta clase
+@RequestMapping("/conciliacion") // prefijo de todas las URLs de esta clase
 public class ConciliacionController {
 
     private final ConciliacionService conciliacionService;
 
-    /** Spring inyecta el servicio (ver la explicación en ConciliacionService). */
+    /** Spring inyecta el servicio por constructor. */
     public ConciliacionController(ConciliacionService conciliacionService) {
         this.conciliacionService = conciliacionService;
     }
 
-    // =========================================================================
-    // CU-01-HU-01: formulario
-    // =========================================================================
-
     /**
-     * GET /conciliacion: formulario vacío con la fecha de hoy y un renglón por artículo.
-     *
-     * <p>{@code Model} es la "bolsa" de datos que el controlador le pasa a la plantilla.
-     * Lo que se mete con {@code addAttribute("x", valor)} se lee en el HTML como
-     * {@code ${x}}.</p>
+     * GET /conciliacion: formulario con la fecha de hoy y un renglón por artículo.
+     * {@code Model} es la "bolsa" de datos para la plantilla: {@code addAttribute("form", x)}
+     * se lee en el HTML como {@code ${form}}.
      */
     @GetMapping
     public String nueva(Model model) {
         ConciliacionForm form = new ConciliacionForm();
         form.setFecha(LocalDate.now());
-        // Un renglón por cada artículo conciliable ("var" deja que Java deduzca el tipo: Articulo).
-        for (var articulo : conciliacionService.articulosAConciliar()) {
+        for (Articulo articulo : conciliacionService.articulosAConciliar()) {
             form.getLineas().add(new ConciliacionForm.LineaConteo(
                     articulo.getId(), articulo.getNombre(), articulo.getUnidadMedida(), articulo.getTipoArticulo()));
         }
         model.addAttribute("form", form);
-        // Extensión 1a: si hoy ya tiene conciliación, se avisa desde el principio.
-        conciliacionService.buscarPorFecha(form.getFecha())
-                .ifPresent(existente -> model.addAttribute("existenteId", existente.getId()));
         return "conciliacion/nueva";
     }
 
     /**
      * POST /conciliacion: recibe el formulario y guarda el borrador.
-     *
      * <ul>
-     *   <li>{@code @Valid @ModelAttribute("form")}: Spring arma el
-     *       {@link ConciliacionForm} con lo que envió el navegador y revisa sus
-     *       anotaciones de validación.</li>
-     *   <li>{@code BindingResult}: guarda los errores de esa validación. DEBE ir justo
-     *       después del parámetro validado.</li>
+     *   <li>{@code @Valid @ModelAttribute}: Spring llena el {@link ConciliacionForm} con lo
+     *       enviado y revisa sus validaciones.</li>
+     *   <li>{@code BindingResult}: los errores de esa validación (va justo después).</li>
      * </ul>
-     *
-     * <p>Si todo sale bien, se redirige a la vista de diferencias (patrón
-     * Post/Redirect/Get: así, si el usuario recarga la página, no se reenvía el
-     * formulario).</p>
+     * Si sale bien, redirige a las diferencias (así recargar la página no reenvía el form).
      */
     @PostMapping
     public String registrar(@Valid @ModelAttribute("form") ConciliacionForm form,
-                            BindingResult errores,
-                            Model model) {
+                            BindingResult errores, Model model) {
         if (errores.hasErrors()) {
-            return "conciliacion/nueva"; // se vuelve a pintar el formulario con los errores
+            return "conciliacion/nueva"; // vuelve a pintar el formulario con los errores
         }
-        // Se pasa cada fila del formulario al objeto que entiende el servicio.
+        // Cada fila del formulario se pasa al objeto que entiende el servicio.
         List<ConteoArticulo> conteos = form.getLineas().stream()
                 .map(l -> new ConteoArticulo(l.getArticuloId(), l.getVendido(), l.getContado()))
                 .toList();
@@ -115,26 +91,18 @@ public class ConciliacionController {
                     conciliacionService.registrarBorrador(form.getFecha(), form.getTotalVentasZ(), conteos);
             return "redirect:/conciliacion/" + guardada.getId();
         } catch (ConciliacionDuplicadaException e) {
-            // Extensión 1a: no se crea otra y se ofrece ver la existente.
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("existenteId", e.getIdExistente());
+            model.addAttribute("existenteId", e.getIdExistente()); // para el enlace "ver la existente"
             return "conciliacion/nueva";
         } catch (ReglaDeNegocioException e) {
-            // Cualquier otra regla: la transacción ya se deshizo y no se guardó nada.
             model.addAttribute("error", e.getMessage());
             return "conciliacion/nueva";
         }
     }
 
-    // =========================================================================
-    // CU-01-HU-02: diferencias y confirmación
-    // =========================================================================
-
     /**
-     * GET /conciliacion/historial: lista los cierres previos (borradores y confirmados).
-     *
-     * <p>Spring elige la ruta más específica: {@code /historial} es un texto fijo, así que
-     * gana sobre {@code /{id}}, aunque las dos empiecen por {@code /conciliacion/}.</p>
+     * GET /conciliacion/historial. Spring prefiere la ruta fija {@code /historial} sobre
+     * {@code /{id}}, aunque las dos empiecen igual.
      */
     @GetMapping("/historial")
     public String historial(Model model) {
@@ -142,57 +110,30 @@ public class ConciliacionController {
         return "conciliacion/historial";
     }
 
-    /**
-     * GET /conciliacion/{id}: muestra, por artículo, lo esperado, lo contado y la
-     * diferencia, y señala los que no cuadran.
-     *
-     * <p>{@code @PathVariable}: toma el {@code {id}} de la URL y lo pasa como parámetro.</p>
-     */
+    /** GET /conciliacion/{id}: las diferencias por artículo. {@code @PathVariable} toma el {id} de la URL. */
     @GetMapping("/{id}")
     public String resumen(@PathVariable Long id, Model model) {
-        ConciliacionDiaria conciliacion;
         try {
-            conciliacion = conciliacionService.buscar(id);
+            model.addAttribute("conciliacion", conciliacionService.buscar(id));
         } catch (ConciliacionNoEncontradaException e) {
-            // Responde "404 No encontrado" en lugar de un error genérico.
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage()); // responde 404
         }
-        List<DetalleConciliacion> detalles = conciliacionService.detalles(id);
-        model.addAttribute("conciliacion", conciliacion);
-        model.addAttribute("detalles", detalles);
-        model.addAttribute("conDiferencia", detalles.stream().filter(DetalleConciliacion::tieneDiferencia).count());
+        model.addAttribute("detalles", conciliacionService.detalles(id));
         return "conciliacion/resumen";
     }
 
     /**
-     * POST /conciliacion/{id}/confirmar: confirma y muestra la alerta de reabastecimiento.
-     *
-     * <p>{@code RedirectAttributes.addFlashAttribute}: guarda un dato que sobrevive a UNA
-     * redirección y luego desaparece. Sirve para mostrar el mensaje y las alertas
-     * después del redirect sin ponerlos en la URL.</p>
+     * POST /conciliacion/{id}/confirmar. {@code addFlashAttribute} guarda un mensaje que
+     * sobrevive a UNA redirección (como {@code flash()} de Flask).
      */
     @PostMapping("/{id}/confirmar")
     public String confirmar(@PathVariable Long id, RedirectAttributes redirect) {
         try {
-            List<InsumoEnAlerta> alertas = conciliacionService.confirmar(id);
-            redirect.addFlashAttribute("mensaje", "Conciliación confirmada. Lo contado quedó como existencia de partida del día siguiente.");
-            redirect.addFlashAttribute("alertas", alertas);
+            conciliacionService.confirmar(id);
+            redirect.addFlashAttribute("mensaje", "Conciliación confirmada. Lo contado quedó como existencia actual.");
         } catch (ReglaDeNegocioException e) {
             redirect.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/conciliacion/" + id;
-    }
-
-    /** POST /conciliacion/{id}/descartar: borra el borrador; no queda nada guardado. */
-    @PostMapping("/{id}/descartar")
-    public String descartar(@PathVariable Long id, RedirectAttributes redirect) {
-        try {
-            conciliacionService.descartar(id);
-            redirect.addFlashAttribute("mensaje", "Borrador descartado. No se guardó nada.");
-            return "redirect:/conciliacion";
-        } catch (ReglaDeNegocioException e) {
-            redirect.addFlashAttribute("error", e.getMessage());
-            return "redirect:/conciliacion/" + id;
-        }
     }
 }
