@@ -1,18 +1,126 @@
 <!DOCTYPE html>
+<!--
+  CU-01-HU-01: Digitar lo vendido y lo contado del día.
+  La pinta ConciliacionController (GET y POST /conciliacion).
+
+  Cómo leer Thymeleaf (los atributos "th:"):
+   - th:object="${form}"  → el formulario trabaja sobre el objeto "form" del Model.
+   - th:field="*{campo}"  → enlaza el input con form.campo (pone name, id y value).
+   - th:each="x, st : ${lista}" → repite la etiqueta por cada elemento; st.index es la posición.
+   - th:if="..."          → solo pinta la etiqueta si la condición es verdadera.
+   - th:errors / #fields.hasErrors → muestran los errores de validación de un campo.
+   - __${...}__           → "preprocesado": calcula el índice antes de armar lineas[0].contado.
+-->
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Nueva Conciliación · Al-Tanto')}">
+<head th:replace="~{fragments/layout :: head('Conciliar el día')}">
     <meta charset="UTF-8">
-    <title>Nueva Conciliación</title>
+    <title>Conciliar el día</title>
 </head>
 <body class="bg-stone-50 text-stone-800 min-h-screen flex flex-col font-sans">
     <div th:replace="~{fragments/layout :: navbar}"></div>
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        <h1 class="text-2xl font-bold text-stone-900 mb-4">CU-01: Conciliar el Día</h1>
-        <p class="text-stone-600 mb-6">Formulario de captura de Reporte Z y conteo físico de vitrina.</p>
-        <div class="bg-white p-6 rounded-xl border border-stone-200">
-            <p class="text-sm text-stone-500">Módulo en construcción para el Sprint 1.</p>
+
+    <main class="flex-grow max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <h1 class="text-2xl font-bold text-stone-900 mb-1">CU-01: Conciliar el día</h1>
+        <p class="text-stone-600 mb-6">
+            Digite lo vendido según el reporte Z y lo que contó en bodega y nevera.
+            Al guardar, el sistema calcula las diferencias; nada cambia hasta que confirme.
+        </p>
+
+        <!-- Mensaje que llega después de descartar un borrador (flash attribute) -->
+        <div th:if="${mensaje}" class="mb-4 p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800"
+             th:text="${mensaje}">Mensaje</div>
+
+        <!-- Errores de negocio (fecha futura, etc.) -->
+        <div th:if="${error}" class="mb-4 p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800"
+             th:text="${error}">Error</div>
+
+        <!-- Extensión 1a: ya existe una conciliación de esa fecha -->
+        <div th:if="${existenteId}" class="mb-4 p-4 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 flex items-center justify-between gap-4">
+            <span>Ya existe una conciliación para esta fecha. No se puede crear otra.</span>
+            <a th:href="@{/conciliacion/{id}(id=${existenteId})}"
+               class="shrink-0 px-4 py-2 rounded-lg bg-amber-700 text-white font-semibold hover:bg-amber-800">
+                Ver la existente
+            </a>
         </div>
+
+        <form th:action="@{/conciliacion}" th:object="${form}" method="post"
+              class="bg-white p-6 rounded-xl border border-stone-200 shadow-sm space-y-6">
+
+            <!-- Cabecera: fecha y total del reporte Z -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label class="block">
+                    <span class="text-sm font-semibold text-stone-700">Fecha</span>
+                    <input type="date" th:field="*{fecha}"
+                           class="mt-1 w-full text-lg px-3 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-amber-600">
+                    <span th:if="${#fields.hasErrors('fecha')}" th:errors="*{fecha}" class="text-sm text-rose-700"></span>
+                </label>
+                <label class="block">
+                    <span class="text-sm font-semibold text-stone-700">Total de ventas del día (reporte Z, $)</span>
+                    <!-- inputmode="decimal": en celulares y tabletas abre el teclado numérico -->
+                    <input type="number" step="0.01" min="0" inputmode="decimal" th:field="*{totalVentasZ}"
+                           class="mt-1 w-full text-lg px-3 py-3 rounded-lg border border-stone-300 focus:ring-2 focus:ring-amber-600">
+                    <span th:if="${#fields.hasErrors('totalVentasZ')}" th:errors="*{totalVentasZ}" class="text-sm text-rose-700"></span>
+                </label>
+            </div>
+
+            <!-- Un renglón por artículo -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="text-xs uppercase text-stone-500 border-b border-stone-200">
+                        <tr>
+                            <th class="py-2 pr-4">Artículo</th>
+                            <th class="py-2 pr-4">Unidad</th>
+                            <th class="py-2 pr-4">Vendido (reporte Z)</th>
+                            <th class="py-2">Contado (bodega y nevera)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="linea, st : *{lineas}" class="border-b border-stone-100">
+                            <td class="py-3 pr-4">
+                                <!-- Campos ocultos: viajan con el formulario para no perder la fila si hay error -->
+                                <input type="hidden" th:field="*{lineas[__${st.index}__].articuloId}">
+                                <input type="hidden" th:field="*{lineas[__${st.index}__].nombre}">
+                                <input type="hidden" th:field="*{lineas[__${st.index}__].unidadMedida}">
+                                <input type="hidden" th:field="*{lineas[__${st.index}__].tipoArticulo}">
+                                <span class="font-medium" th:text="${linea.nombre}">Harina</span>
+                                <span class="block text-xs text-stone-500"
+                                      th:text="${linea.esReventa() ? 'Producto de reventa' : 'Insumo'}">Insumo</span>
+                            </td>
+                            <td class="py-3 pr-4 text-sm text-stone-600" th:text="${linea.unidadMedida}">KILOGRAMO</td>
+                            <td class="py-3 pr-4">
+                                <!-- Solo los productos de reventa se venden; los insumos se gastan en tandas -->
+                                <input th:if="${linea.esReventa()}" type="number" step="0.001" min="0" inputmode="decimal"
+                                       th:field="*{lineas[__${st.index}__].vendido}"
+                                       class="w-32 text-lg px-3 py-2 rounded-lg border border-stone-300">
+                                <span th:unless="${linea.esReventa()}" class="text-stone-400 text-sm">—</span>
+                                <span th:if="${#fields.hasErrors('lineas[__${st.index}__].vendido')}"
+                                      th:errors="*{lineas[__${st.index}__].vendido}" class="block text-sm text-rose-700"></span>
+                            </td>
+                            <td class="py-3">
+                                <input type="number" step="0.001" min="0" inputmode="decimal"
+                                       th:field="*{lineas[__${st.index}__].contado}"
+                                       class="w-32 text-lg px-3 py-2 rounded-lg border border-stone-300">
+                                <span th:if="${#fields.hasErrors('lineas[__${st.index}__].contado')}"
+                                      th:errors="*{lineas[__${st.index}__].contado}" class="block text-sm text-rose-700"></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p th:if="*{lineas.isEmpty()}" class="text-stone-500 text-sm py-4">No hay artículos activos para conciliar.</p>
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <!-- Cancelar: solo sale de la página; no se envía ni se guarda nada (criterio 3) -->
+                <a th:href="@{/}" class="px-5 py-3 rounded-lg border border-stone-300 text-stone-700 font-semibold hover:bg-stone-100">
+                    Cancelar
+                </a>
+                <button type="submit" class="px-5 py-3 rounded-lg bg-amber-700 text-white font-semibold hover:bg-amber-800">
+                    Guardar y ver diferencias
+                </button>
+            </div>
+        </form>
     </main>
+
     <div th:replace="~{fragments/layout :: footer}"></div>
 </body>
 </html>

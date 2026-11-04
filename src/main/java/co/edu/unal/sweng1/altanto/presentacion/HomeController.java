@@ -13,11 +13,10 @@ public class HomeController {
 		return "index";
 	}
 
-	@GetMapping("/conciliacion")
-	public String conciliacion() {
-		return "conciliacion/nueva";
-	}
+	// La ruta /conciliacion la atiende ConciliacionController (CU-01-HU-01 y HU-02).
+	// Si estuviera aquí también, Spring no arrancaría por tener dos métodos para la misma URL.
 
+	// Rutas provisionales: las reemplazan CU-02-HU-01 y CU-03-HU-01 con su propio controlador.
 	@GetMapping("/inventario/alertas")
 	public String inventarioAlertas() {
 		return "inventario/alertas";

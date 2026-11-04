@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<!--
+  CU-01-HU-02: Ver las diferencias y confirmar la conciliación.
+  La pinta ConciliacionController (GET /conciliacion/{id}).
+
+  Datos que llegan en el Model:
+   - conciliacion  : la cabecera (fecha, total Z, estado).
+   - detalles      : una línea por artículo (anterior, recibido, salida, esperada, contada, diferencia).
+   - conDiferencia : cuántos artículos no cuadran.
+   - mensaje / error / alertas : "flash attributes" que llegan solo después de confirmar o descartar.
+
+  stripTrailingZeros().toPlainString() es un método de BigDecimal: muestra 15 en vez de 15.000.
+  #numbers.formatDecimal(valor, 1, 'POINT', 0, 'COMMA') muestra el dinero como 345.000.
+-->
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Diferencias de la conciliación')}">
+    <meta charset="UTF-8">
+    <title>Diferencias de la conciliación</title>
+</head>
+<body class="bg-stone-50 text-stone-800 min-h-screen flex flex-col font-sans">
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <main class="flex-grow max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-stone-900">
+                    Conciliación del <span th:text="${#temporals.format(conciliacion.fechaConciliacion, 'dd/MM/yyyy')}">03/11/2026</span>
+                </h1>
+                <p class="text-stone-600">
+                    Ventas del reporte Z:
+                    <strong th:text="'$ ' + ${#numbers.formatDecimal(conciliacion.totalVentaReporteZ, 1, 'POINT', 0, 'COMMA')}">$ 0</strong>
+                </p>
+            </div>
+            <!-- Estado: BORRADOR (ámbar) o CONFIRMADA (verde) -->
+            <span th:text="${conciliacion.estado}"
+                  th:classappend="${conciliacion.esBorrador()} ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'"
+                  class="px-3 py-1 rounded-full text-sm font-bold">BORRADOR</span>
+        </div>
+
+        <div th:if="${mensaje}" class="mb-4 p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800"
+             th:text="${mensaje}">Mensaje</div>
+        <div th:if="${error}" class="mb-4 p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800"
+             th:text="${error}">Error</div>
+
+        <!-- Criterio 4: alerta de reabastecimiento al confirmar -->
+        <div th:if="${alertas != null and !alertas.isEmpty()}" class="mb-6 p-4 rounded-lg bg-rose-50 border border-rose-300">
+            <h2 class="font-bold text-rose-800 mb-2">🚨 Alerta de reabastecimiento</h2>
+            <p class="text-sm text-rose-800 mb-2">Estos insumos quedaron en su umbral mínimo o por debajo:</p>
+            <ul class="list-disc pl-6 text-sm text-rose-900 mb-3">
+                <li th:each="a : ${alertas}">
+                    <strong th:text="${a.nombre}">Harina</strong>:
+                    <span th:text="${a.existencia.stripTrailingZeros().toPlainString()}">15</span>
+                    (umbral <span th:text="${a.umbral.stripTrailingZeros().toPlainString()}">25</span>)
+                    <span th:text="${a.unidadMedida}">KILOGRAMO</span>
+                </li>
+            </ul>
+            <a th:href="@{/inventario/alertas}" class="text-sm font-semibold text-rose-800 underline">Ver las alertas vigentes (CU-02)</a>
+        </div>
+
+        <!-- Criterio 2: cuántos artículos no cuadran -->
+        <p class="mb-3 text-sm" th:if="${!detalles.isEmpty()}">
+            <span th:if="${conDiferencia > 0}" class="font-semibold text-rose-700"
+                  th:text="${conDiferencia} + ' artículo(s) con diferencia (resaltados en rojo).'">2 artículos con diferencia.</span>
+            <span th:if="${conDiferencia == 0}" class="font-semibold text-emerald-700">Todo cuadra: no hay diferencias.</span>
+        </p>
+
+        <div class="bg-white rounded-xl border border-stone-200 shadow-sm overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead class="text-xs uppercase text-stone-500 border-b border-stone-200 bg-stone-50">
+                    <tr>
+                        <th class="py-3 px-4">Artículo</th>
+                        <th class="py-3 px-4 text-right">Existencia anterior</th>
+                        <th class="py-3 px-4 text-right">+ Recibido</th>
+                        <th class="py-3 px-4 text-right">− Vendido o consumido en tandas</th>
+                        <th class="py-3 px-4 text-right">= Esperado</th>
+                        <th class="py-3 px-4 text-right">Contado</th>
+                        <th class="py-3 px-4 text-right">Diferencia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- th:classappend agrega el fondo rojo solo a las filas con diferencia -->
+                    <tr th:each="d : ${detalles}" class="border-b border-stone-100"
+                        th:classappend="${d.tieneDiferencia()} ? 'bg-rose-50'">
+                        <td class="py-3 px-4">
+                            <span class="font-medium" th:text="${d.articulo.nombre}">Harina</span>
+                            <span class="block text-xs text-stone-500" th:text="${d.articulo.unidadMedida}">KILOGRAMO</span>
+                        </td>
+                        <td class="py-3 px-4 text-right" th:text="${d.existenciaAnterior.stripTrailingZeros().toPlainString()}">15</td>
+                        <td class="py-3 px-4 text-right" th:text="${d.cantidadRecibida.stripTrailingZeros().toPlainString()}">0</td>
+                        <td class="py-3 px-4 text-right" th:text="${d.cantidadSalida.stripTrailingZeros().toPlainString()}">0</td>
+                        <td class="py-3 px-4 text-right font-semibold" th:text="${d.existenciaEsperada.stripTrailingZeros().toPlainString()}">15</td>
+                        <td class="py-3 px-4 text-right font-semibold" th:text="${d.cantidadContada.stripTrailingZeros().toPlainString()}">14</td>
+                        <td class="py-3 px-4 text-right font-bold"
+                            th:classappend="${d.tieneDiferencia()} ? 'text-rose-700' : 'text-emerald-700'"
+                            th:text="${d.diferencia.stripTrailingZeros().toPlainString()}">-1</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p th:if="${detalles.isEmpty()}" class="p-4 text-stone-500">
+                Esta conciliación no tiene artículos registrados. Descártela y regístrela de nuevo.
+            </p>
+        </div>
+        <p class="text-xs text-stone-500 mt-2">
+            Diferencia = contado − esperado. Negativa: falta mercancía. Positiva: sobra.
+            "Recibido" se llenará cuando exista la recepción de pedidos (CU-04).
+        </p>
+
+        <!-- Acciones: solo si sigue en borrador -->
+        <div th:if="${conciliacion.esBorrador()}" class="flex justify-end gap-3 mt-6">
+            <form th:action="@{/conciliacion/{id}/descartar(id=${conciliacion.id})}" method="post"
+                  onsubmit="return confirm('¿Descartar este borrador? No quedará nada guardado.');">
+                <button type="submit" class="px-5 py-3 rounded-lg border border-stone-300 text-stone-700 font-semibold hover:bg-stone-100">
+                    Descartar borrador
+                </button>
+            </form>
+            <form th:action="@{/conciliacion/{id}/confirmar(id=${conciliacion.id})}" method="post">
+                <button type="submit" th:disabled="${detalles.isEmpty()}"
+                        class="px-5 py-3 rounded-lg bg-amber-700 text-white font-semibold hover:bg-amber-800 disabled:opacity-50">
+                    Confirmar conciliación
+                </button>
+            </form>
+        </div>
+        <div th:unless="${conciliacion.esBorrador()}" class="flex justify-end mt-6">
+            <a th:href="@{/}" class="px-5 py-3 rounded-lg border border-stone-300 text-stone-700 font-semibold hover:bg-stone-100">Volver al inicio</a>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>
