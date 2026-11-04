@@ -24,6 +24,7 @@
             <th>Insumo</th>
             <th>Existencia</th>
             <th>Umbral mínimo</th>
+            <th>Consumo promedio diario</th>
             <th>Déficit</th>
             <th>Cobertura (días)</th>
             <th>Estado</th>
@@ -33,6 +34,8 @@
             <td th:text="${insumo.nombre}">Harina</td>
             <td th:text="${insumo.existencia + ' ' + insumo.unidad}">15 KILOGRAMO</td>
             <td th:text="${insumo.umbral + ' ' + insumo.unidad}">25 KILOGRAMO</td>
+            <!-- consumoDiario es null cuando el insumo no tiene consumo configurado -->
+            <td th:text="${insumo.consumoDiario != null} ? ${insumo.consumoDiario + ' ' + insumo.unidad + '/día'} : 'No disponible'">35 KILOGRAMO/día</td>
             <td th:text="${insumo.deficit + ' ' + insumo.unidad}">10 KILOGRAMO</td>
             <!-- coberturaDias es null cuando no hay consumo diario configurado -->
             <td th:text="${insumo.coberturaDias != null} ? ${insumo.coberturaDias} : 'No disponible'">0.43</td>

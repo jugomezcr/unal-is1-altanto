@@ -85,6 +85,7 @@ public class CalculadoraAlerta {
                 datos.unidad(),
                 existenciaEfectiva(datos.existencia()),
                 umbral,
+                datos.consumoDiario(),
                 calcularDeficit(datos),
                 calcularCobertura(datos.existencia(), datos.consumoDiario()),
                 calcularNivel(datos));
