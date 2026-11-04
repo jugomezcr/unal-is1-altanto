@@ -8,7 +8,8 @@ Conciliar el día**, siguiendo un caso real de principio a fin.
 > **Cómo leerla.** Siga las secciones en orden: cada una se apoya en la anterior. Tenga el
 > proyecto abierto en VS Code o IntelliJ para ir viendo los archivos que se nombran. Las
 > palabras nuevas se explican la primera vez que aparecen y también están en el
-> [glosario](#13-glosario).
+> [glosario](#13-glosario). Si solo necesita el mapa de carpetas y cómo se conectan las
+> piezas (con equivalencias de Python), vea [arquitectura.md](arquitectura.md).
 
 ## Contenido
 

@@ -131,6 +131,8 @@ fiado, facturación electrónica, varias sucursales y usuarios adicionales.
 
 ## Documentación
 
+- **[Arquitectura](docs/arquitectura.md):** mapa de carpetas y de cómo se conecta cada pieza
+  (controlador → servicio → repositorio → tabla), con equivalencias para quien viene de Python.
 - **[Al-Tanto desde cero](docs/guia-desde-cero.md):** cómo está construido el proyecto,
   explicado para quien nunca ha usado Java ni Spring Boot, hasta el CU-01 terminado.
 - **[Guía de ejecución](docs/guia-de-ejecucion.md):** cómo ejecutar y probar la aplicación
