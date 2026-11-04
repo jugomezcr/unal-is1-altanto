@@ -36,23 +36,25 @@ public interface InsumoConfigRepository extends JpaRepository<InsumoConfig, Long
     List<InsumoEnAlerta> buscarInsumosEnAlerta();
 
     /**
- * Obtiene los datos de los insumos activos y configurados
- * necesarios para calcular el panel de alertas.
- */
-@Query("""
-        SELECT new co.edu.unal.sweng1.altanto.negocio.dto.DatosInsumo(
-            a.codigo,
-            a.nombre,
-            a.unidadMedida,
-            a.existenciaActual,
-            c.umbralMinimo,
-            c.consumoPromedioDiario
-        )
-        FROM Articulo a, InsumoConfig c
-        WHERE c.articuloId = a.id
-          AND a.tipoArticulo = 'INSUMO'
-          AND a.activo = true
-        ORDER BY a.nombre
-        """)
-List<DatosInsumo> buscarDatosParaPanelAlertas();
+     * Datos crudos de TODOS los insumos activos con configuración, para el panel de
+     * alertas (CU-02-HU-01). A diferencia de {@link #buscarInsumosEnAlerta()}, no filtra
+     * por umbral: el nivel (NORMAL/ALERTA/CRÍTICO) lo decide {@code CalculadoraAlerta}
+     * en Java, no la consulta.
+     */
+    @Query("""
+            SELECT new co.edu.unal.sweng1.altanto.negocio.dto.DatosInsumo(
+                a.codigo,
+                a.nombre,
+                a.unidadMedida,
+                a.existenciaActual,
+                c.umbralMinimo,
+                c.consumoPromedioDiario
+            )
+            FROM Articulo a, InsumoConfig c
+            WHERE c.articuloId = a.id
+              AND a.tipoArticulo = 'INSUMO'
+              AND a.activo = true
+            ORDER BY a.nombre
+            """)
+    List<DatosInsumo> buscarDatosParaPanelAlertas();
 }

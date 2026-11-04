@@ -23,11 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
  * HTTP, plantilla usada y HTML generado). También prueba que las plantillas Thymeleaf
  * se pintan sin errores.
  */
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
+@SpringBootTest        // arranca la aplicación completa con H2 en memoria
+@AutoConfigureMockMvc  // prepara el MockMvc que se inyecta abajo
+@Transactional         // en pruebas: deshace lo guardado al final de cada prueba
 class ConciliacionControllerTest {
 
+    // @Autowired: Spring inyecta el objeto en el campo (en pruebas es lo más simple)
     @Autowired
     private MockMvc mockMvc;
 

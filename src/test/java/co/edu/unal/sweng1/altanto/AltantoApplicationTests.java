@@ -12,17 +12,24 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+/**
+ * Pruebas "de humo": la aplicación arranca y cada módulo responde. Si alguna falla, hay
+ * un problema de configuración (rutas duplicadas, entidad que no coincide con
+ * schema.sql, plantilla rota...).
+ */
+@SpringBootTest        // arranca la aplicación completa con H2 en memoria
+@AutoConfigureMockMvc  // prepara el MockMvc (navegador simulado)
 class AltantoApplicationTests {
 
 	@Autowired
 	private MockMvc mockMvc;
 
+	/** Vacía a propósito: si Spring no logra arrancar, esta prueba falla. */
 	@Test
 	void contextLoads() {
 	}
 
+	/** La página de inicio muestra la marca y los tres módulos. */
 	@Test
 	void paginaInicioRespondeConBienvenidaAlTanto() throws Exception {
 		mockMvc.perform(get("/"))
@@ -35,6 +42,7 @@ class AltantoApplicationTests {
 				.andExpect(content().string(containsString("Registro de Producción")));
 	}
 
+	/** La ruta principal de cada módulo responde 200 con su plantilla. */
 	@Test
 	void rutasInicialesDeModulosRespondenExitosamente() throws Exception {
 		mockMvc.perform(get("/conciliacion"))

@@ -1,4 +1,13 @@
 <!DOCTYPE html>
+<!--
+  Piezas comunes a todas las páginas (como un "base.html" con {% block %} en Jinja/Django).
+  Esta página no se muestra sola: cada plantilla toma sus fragmentos con
+  th:replace="~{fragments/layout :: nombre}".
+   - head(pageTitle): <head> con el título y Tailwind.
+   - navbar:          menú superior.
+   - footer:          pie de página.
+  th:fragment="..." declara un fragmento; @{/ruta} arma la URL respetando el contexto de la app.
+-->
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="head(pageTitle)">
     <meta charset="UTF-8">

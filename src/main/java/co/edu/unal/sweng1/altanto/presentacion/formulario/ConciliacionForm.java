@@ -35,6 +35,7 @@ public class ConciliacionForm {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate fecha;
 
+    /** Total vendido según el reporte Z de la caja, en pesos. */
     @NotNull(message = "El total del reporte Z es obligatorio.")
     @PositiveOrZero(message = "No puede ser negativo.")
     @Digits(integer = 10, fraction = 2, message = "Máximo 2 decimales.")
@@ -43,6 +44,8 @@ public class ConciliacionForm {
     /** {@code @Valid} aquí hace que también se validen las reglas de cada línea. */
     @Valid
     private List<LineaConteo> lineas = new ArrayList<>();
+
+    // Getters y setters: Spring los usa para llenar el formulario y Thymeleaf para leerlo.
 
     public LocalDate getFecha() {
         return fecha;
@@ -77,16 +80,17 @@ public class ConciliacionForm {
      */
     public static class LineaConteo {
 
-        private Long articuloId;
-        private String nombre;
-        private String unidadMedida;
-        private String tipoArticulo;
+        private Long articuloId;     // id del artículo (campo oculto)
+        private String nombre;       // solo para mostrar
+        private String unidadMedida; // solo para mostrar
+        private String tipoArticulo; // INSUMO o PRODUCTO_REVENTA
 
         /** Solo para productos de reventa; los insumos no se venden por caja. */
         @PositiveOrZero(message = "No puede ser negativo.")
         @Digits(integer = 9, fraction = 3, message = "Máximo 3 decimales.")
         private BigDecimal vendido;
 
+        /** Lo contado físicamente; obligatorio para todo artículo. */
         @NotNull(message = "Digite lo contado.")
         @PositiveOrZero(message = "No puede ser negativo.")
         @Digits(integer = 9, fraction = 3, message = "Máximo 3 decimales.")
@@ -96,6 +100,7 @@ public class ConciliacionForm {
         public LineaConteo() {
         }
 
+        /** Crea la fila vacía de un artículo (lo usa el controlador al pintar el formulario). */
         public LineaConteo(Long articuloId, String nombre, String unidadMedida, String tipoArticulo) {
             this.articuloId = articuloId;
             this.nombre = nombre;
@@ -107,6 +112,8 @@ public class ConciliacionForm {
         public boolean esReventa() {
             return co.edu.unal.sweng1.altanto.persistencia.entidad.Articulo.TIPO_PRODUCTO_REVENTA.equals(tipoArticulo);
         }
+
+        // Getters y setters de la fila.
 
         public Long getArticuloId() {
             return articuloId;

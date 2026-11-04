@@ -12,15 +12,20 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-
+// Pruebas unitarias de AlertaInsumosService (CU-02-HU-01): filtro de visibles y orden del panel.
+// No arrancan Spring ni la base de datos: el servicio se crea con new y una FuenteEnMemoria.
+// @Test marca cada método como una prueba; assertX(...) falla la prueba si no se cumple.
 class ServicioAlertasTest {
 
+    // mismo valor por defecto que usa el servicio en @Value
     private static final String VISIBLES_POR_DEFECTO = "INS-HAR-01,INS-LEV-01,INS-MAR-01";
 
+    // arma un servicio con datos y visibles dados, límite crítico de 1 día
     private AlertaInsumosService servicio(List<DatosInsumo> datos, String visibles) {
         return new AlertaInsumosService(new FuenteEnMemoria(datos), visibles, BigDecimal.ONE);
     }
 
+    // solo los nombres del panel, en orden, para comparar fácil
     private List<String> nombres(List<InsumoPanel> panel) {
         return panel.stream().map(InsumoPanel::nombre).toList();
     }

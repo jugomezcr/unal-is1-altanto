@@ -198,6 +198,7 @@ public class ConciliacionService {
         validarPosteriorAUltimaConfirmada(fecha);
     }
 
+    /** Regla 3 de arriba: la fecha debe ser posterior a la última conciliación CONFIRMADA. */
     private void validarPosteriorAUltimaConfirmada(LocalDate fecha) {
         conciliacionRepository.findFirstByEstadoOrderByFechaConciliacionDesc(EstadoConciliacion.CONFIRMADA)
                 .ifPresent(ultima -> {

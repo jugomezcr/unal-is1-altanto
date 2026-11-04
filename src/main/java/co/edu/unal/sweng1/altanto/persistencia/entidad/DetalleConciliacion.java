@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 @Table(name = "detalles_conciliacion")
 public class DetalleConciliacion {
 
+    /** Llave primaria; la asigna la secuencia {@code detalle_conciliacion_seq}. */
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "detalle_conciliacion_seq")
     @SequenceGenerator(name = "detalle_conciliacion_seq", sequenceName = "detalle_conciliacion_seq", allocationSize = 1)
@@ -58,6 +59,7 @@ public class DetalleConciliacion {
     @Column(name = "cantidad_salida", nullable = false, precision = 12, scale = 3)
     private BigDecimal cantidadSalida = BigDecimal.ZERO;
 
+    /** anterior + recibida − salida. Lo calcula {@link #calcular()}. */
     @Column(name = "existencia_esperada", nullable = false, precision = 12, scale = 3)
     private BigDecimal existenciaEsperada;
 
@@ -65,6 +67,7 @@ public class DetalleConciliacion {
     @Column(name = "cantidad_contada", nullable = false, precision = 12, scale = 3)
     private BigDecimal cantidadContada;
 
+    /** contada − esperada. Negativa = falta; positiva = sobra. */
     @Column(name = "diferencia", nullable = false, precision = 12, scale = 3)
     private BigDecimal diferencia;
 

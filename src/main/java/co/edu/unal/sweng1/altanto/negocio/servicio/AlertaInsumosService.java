@@ -14,7 +14,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-// Arma el panel: pide los insumos a la fuente, deja los visibles, calcula y ordena.
+// Arma el panel de alertas (CU-02-HU-01): pide los insumos a la fuente, deja los visibles,
+// calcula el nivel de cada uno y los ordena por urgencia.
+// @Service: Spring crea un solo objeto de esta clase y lo inyecta en el controlador.
 @Service
 public class AlertaInsumosService {
 
@@ -29,24 +31,34 @@ public class AlertaInsumosService {
     private final Set<String> codigosVisibles;        // códigos que se muestran en el panel
     private final CalculadoraAlerta calculadora;      // reglas de nivel, déficit y cobertura
 
+    // Spring llama este constructor y le pasa:
+    //  - fuente: el objeto que implementa FuenteInsumos (FuenteInsumosPersistencia).
+    //  - @Value("${clave:valorPorDefecto}"): lee la clave de application.properties;
+    //    si no está, usa lo que va después de los dos puntos.
     public AlertaInsumosService(
             FuenteInsumos fuente,
             @Value("${altanto.alertas.codigos-visibles:INS-HAR-01,INS-LEV-01,INS-MAR-01}") String codigosVisibles,
             @Value("${altanto.alertas.dias-critico:1}") BigDecimal diasCritico) {
         this.fuente = fuente;
+        // "A,B, C" -> {"A","B","C"}: separa por comas, quita espacios y vacíos.
         this.codigosVisibles = Arrays.stream(codigosVisibles.split(","))
                 .map(String::trim)
                 .filter(codigo -> !codigo.isEmpty())
                 .collect(Collectors.toSet());
+        // La calculadora no es un bean de Spring: es una clase normal que se crea con new.
         this.calculadora = new CalculadoraAlerta(diasCritico);
     }
 
+    // Filas del panel, ya calculadas y ordenadas. Lista vacía si la fuente no trae nada.
     public List<InsumoPanel> obtenerPanel() {
         List<DatosInsumo> todos = fuente.obtenerInsumos();
         if (todos == null) {
             return List.of();
         }
-        // TODO-COMENTARIO: explica por qué el filtro de visibles se hace aquí y no en la fuente
+        // El filtro de visibles va aquí y no en la fuente: es una regla de negocio (qué se
+        // muestra), no de acceso a datos. Así cualquier fuente (BD o memoria en pruebas)
+        // recibe el mismo filtro y la consulta SQL no depende de la configuración.
+        // stream(): recorre la lista como un pipeline (filter = if, map = transformar).
         return todos.stream()
                 .filter(datos -> datos != null && codigosVisibles.contains(datos.codigo()))
                 .map(calculadora::armarPanel)

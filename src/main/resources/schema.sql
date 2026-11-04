@@ -2,8 +2,16 @@
 -- ESQUEMA RELACIONAL H2 — SISTEMA AL-TANTO (PANADERÍA DE LEONARDO BETANCUR)
 -- Ingeniería de Software I · Equipo Hefesto · Grupo 4
 -- =============================================================================
+-- Cuándo corre: Spring lo ejecuta al arrancar (spring.sql.init.mode=always), ANTES de
+-- data.sql. "IF NOT EXISTS" hace que no falle ni borre nada si las tablas ya existen.
+-- Relación con Java: cada tabla con clase @Entity está en persistencia/entidad/.
+-- Hibernate NO crea tablas (ddl-auto=validate): solo revisa que coincidan con las
+-- entidades: si una entidad pide una columna que no existe aquí, la app no arranca.
+-- =============================================================================
 
--- Secuencias para generación de identificadores
+-- Secuencias para generación de identificadores.
+-- Las usa @GeneratedValue(SEQUENCE) en cada entidad. Empiezan en 100 para que los ids
+-- no choquen con los ids fijos (1, 2, 3...) de los datos de ejemplo de data.sql.
 CREATE SEQUENCE IF NOT EXISTS proveedor_seq START WITH 100;
 CREATE SEQUENCE IF NOT EXISTS articulo_seq START WITH 100;
 CREATE SEQUENCE IF NOT EXISTS conciliacion_seq START WITH 100;
@@ -13,6 +21,7 @@ CREATE SEQUENCE IF NOT EXISTS tanda_seq START WITH 100;
 CREATE SEQUENCE IF NOT EXISTS detalle_tanda_seq START WITH 100;
 
 -- 1. TABLA: PROVEEDORES
+-- Entidad: Proveedor
 CREATE TABLE IF NOT EXISTS proveedores (
     id BIGINT PRIMARY KEY,
     nit VARCHAR(20) NOT NULL UNIQUE,
@@ -24,6 +33,7 @@ CREATE TABLE IF NOT EXISTS proveedores (
 );
 
 -- 2. TABLA: ARTICULOS (Base de Insumos y Productos Terminados)
+-- Entidad: Articulo. tipo_articulo = INSUMO | PRODUCTO_REVENTA | PRODUCTO_ELABORADO
 CREATE TABLE IF NOT EXISTS articulos (
     id BIGINT PRIMARY KEY,
     codigo VARCHAR(30) NOT NULL UNIQUE,
@@ -36,6 +46,7 @@ CREATE TABLE IF NOT EXISTS articulos (
 );
 
 -- 3. TABLA: INSUMOS_CONFIG (Parámetros de Reabastecimiento y Recetas)
+-- Entidad: InsumoConfig. Relación 1 a 1 con articulos (misma llave primaria).
 CREATE TABLE IF NOT EXISTS insumos_config (
     articulo_id BIGINT PRIMARY KEY,
     proveedor_habitual_id BIGINT,
@@ -50,6 +61,7 @@ CREATE TABLE IF NOT EXISTS insumos_config (
 );
 
 -- 4. TABLA: PRODUCTOS_VENTA_CONFIG (Configuración para Mostrador y Reporte Z)
+-- Todavía sin entidad: se usará cuando se integre el reporte Z por producto.
 CREATE TABLE IF NOT EXISTS productos_venta_config (
     articulo_id BIGINT PRIMARY KEY,
     codigo_plu INTEGER NOT NULL UNIQUE,
@@ -59,6 +71,7 @@ CREATE TABLE IF NOT EXISTS productos_venta_config (
 );
 
 -- 5. TABLA: CONCILIACIONES_DIARIAS (Cierres de Caja y Turnos Diarios)
+-- Entidad: ConciliacionDiaria (CU-01). UNIQUE en la fecha: una conciliación por día.
 CREATE TABLE IF NOT EXISTS conciliaciones_diarias (
     id BIGINT PRIMARY KEY,
     fecha_conciliacion DATE NOT NULL UNIQUE,
@@ -69,6 +82,7 @@ CREATE TABLE IF NOT EXISTS conciliaciones_diarias (
 );
 
 -- 6. TABLA: DETALLES_CONCILIACION (Líneas de Balance Físico vs Teórico)
+-- Entidad: DetalleConciliacion (CU-01). Una línea por artículo conciliado.
 CREATE TABLE IF NOT EXISTS detalles_conciliacion (
     id BIGINT PRIMARY KEY,
     conciliacion_id BIGINT NOT NULL,
@@ -86,6 +100,7 @@ CREATE TABLE IF NOT EXISTS detalles_conciliacion (
 );
 
 -- 7. TABLA: ALERTAS_REABASTECIMIENTO (Monitoreo de Quiebre de Stock)
+-- Todavía sin entidad: hoy las alertas se calculan al vuelo (CU-02); no se guardan.
 CREATE TABLE IF NOT EXISTS alertas_reabastecimiento (
     id BIGINT PRIMARY KEY,
     insumo_id BIGINT NOT NULL,
@@ -99,6 +114,7 @@ CREATE TABLE IF NOT EXISTS alertas_reabastecimiento (
 );
 
 -- 8. TABLA: TANDAS_PRODUCCION (Registro de Horneadas del Maestro Panadero)
+-- Entidad: TandaProduccion (CU-03).
 CREATE TABLE IF NOT EXISTS tandas_produccion (
     id BIGINT PRIMARY KEY,
     fecha DATE NOT NULL,
@@ -112,6 +128,7 @@ CREATE TABLE IF NOT EXISTS tandas_produccion (
 );
 
 -- 9. TABLA: DETALLES_TANDA_INSUMO (Insumos Consumidos por Tanda)
+-- Entidad: DetalleTandaInsumo (CU-03). ON DELETE CASCADE: borrar la tanda borra sus líneas.
 CREATE TABLE IF NOT EXISTS detalles_tanda_insumo (
     id BIGINT PRIMARY KEY,
     tanda_id BIGINT NOT NULL,

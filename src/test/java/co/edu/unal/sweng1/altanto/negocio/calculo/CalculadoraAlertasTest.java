@@ -11,8 +11,11 @@ import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 
 
+// Pruebas unitarias de las reglas puras de CalculadoraAlerta (nivel, déficit y cobertura).
+// Sin Spring ni base de datos: solo new. Los datos vienen de DatosAlertasPrueba.
 class CalculadoraAlertasTest {
 
+    // límite crítico de 1 día, como en la configuración por defecto
     private final CalculadoraAlerta calculadora = new CalculadoraAlerta(BigDecimal.ONE);
 
     // compara números sin que importe la escala (2.0 y 2.00 son iguales)

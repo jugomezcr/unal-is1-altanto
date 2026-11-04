@@ -8,9 +8,11 @@ import java.util.List;
 // Datos de prueba de la historia, construidos en un solo lugar.
 public final class DatosAlertasPrueba {
 
+    // constructor privado: clase de utilidades, no se crean objetos de ella
     private DatosAlertasPrueba() {
     }
 
+    // texto -> BigDecimal (null se queda null, para probar datos faltantes)
     private static BigDecimal numero(String valor) {
         return (valor == null) ? null : new BigDecimal(valor);
     }
@@ -47,6 +49,7 @@ public final class DatosAlertasPrueba {
                 numero("6.000"), numero("5.000"), numero("6.000"));
     }
 
+    // los cinco juntos, como los devolvería la base de datos
     public static List<DatosInsumo> datosSemilla() {
         return List.of(harina(), levadura(), margarina(), azucar(), queso());
     }

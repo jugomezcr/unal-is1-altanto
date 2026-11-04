@@ -61,6 +61,7 @@ public class ConciliacionDiaria {
     @Column(name = "estado", nullable = false, length = 20)
     private EstadoConciliacion estado = EstadoConciliacion.BORRADOR;
 
+    /** Nota libre del Administrador (opcional). */
     @Column(name = "observaciones", length = 500)
     private String observaciones;
 

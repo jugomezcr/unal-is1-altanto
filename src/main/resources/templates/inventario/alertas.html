@@ -1,5 +1,18 @@
-
 <!DOCTYPE html>
+<!--
+  CU-02-HU-01: Ver los insumos en alerta.
+  La pinta InventarioAlertasController (GET /inventario/alertas) con dos datos del Model:
+   - ${insumos}:    lista de InsumoPanel (una fila por insumo, ya ordenada por urgencia).
+   - ${hayAlertas}: true si algún insumo no está NORMAL.
+
+  Thymeleaf usado aquí:
+   - th:replace="~{fragments/layout :: x}" → pega el fragmento x de layout.html (cabecera, menú, pie).
+   - th:if / th:unless → pinta la etiqueta solo si la condición es verdadera / falsa.
+   - th:each="insumo : ${insumos}" → repite la fila <tr> por cada elemento.
+   - th:text="${...}" → reemplaza el texto de ejemplo por el valor real.
+   - th:classappend → agrega clases CSS según una condición (color por nivel).
+   - #lists.isEmpty(...) → utilidad de Thymeleaf para listas.
+-->
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Alertas de Insumos · Al-Tanto')}">
     <meta charset="UTF-8">
@@ -62,6 +75,7 @@
                     </thead>
 
                     <tbody class="divide-y divide-stone-100">
+                        <!-- Fondo rojo si es crítico, ámbar si está en alerta. nivel.name() = texto del enum. -->
                         <tr th:each="insumo : ${insumos}"
                             th:classappend="${insumo.nivel.name() == 'CRITICO'} ? 'bg-red-50' :
                                             (${insumo.nivel.name() == 'ALERTA'} ? 'bg-amber-50' : '')">
@@ -86,6 +100,7 @@
                                 Déficit
                             </td>
 
+                            <!-- coberturaDias es null cuando no hay consumo diario configurado -->
                             <td class="px-6 py-4"
                                 th:text="${insumo.coberturaDias != null} ?
                                          ${insumo.coberturaDias} : 'No disponible'">

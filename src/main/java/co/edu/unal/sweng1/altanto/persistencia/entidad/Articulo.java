@@ -9,6 +9,14 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 
+/**
+ * Cualquier cosa que la panadería guarda o vende (tabla {@code articulos}): insumos,
+ * productos de reventa y pan elaborado. Es la tabla central del sistema.
+ *
+ * <p>Las tres clases de artículo viven en la MISMA tabla y se distinguen por la columna
+ * {@code tipo_articulo} (constantes de abajo). Ver {@link ConciliacionDiaria} para las
+ * anotaciones JPA.</p>
+ */
 @Entity
 @Table(name = "articulos")
 public class Articulo {
@@ -32,11 +40,13 @@ public class Articulo {
      */
     public static final String TIPO_PRODUCTO_ELABORADO = "PRODUCTO_ELABORADO";
 
+    /** Llave primaria; la asigna la secuencia {@code articulo_seq}. */
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "articulo_seq")
     @SequenceGenerator(name = "articulo_seq", sequenceName = "articulo_seq", allocationSize = 1)
     private Long id;
 
+    /** Código interno único (por ejemplo, {@code INS-HAR-01}). */
     @Column(name = "codigo", nullable = false, unique = true, length = 30)
     private String codigo;
 
@@ -46,20 +56,27 @@ public class Articulo {
     @Column(name = "descripcion", length = 255)
     private String descripcion;
 
+    /** Uno de los {@code TIPO_*} de arriba. */
     @Column(name = "tipo_articulo", nullable = false, length = 30)
     private String tipoArticulo;
 
+    /** KILOGRAMO, GRAMO, UNIDAD... */
     @Column(name = "unidad_medida", nullable = false, length = 20)
     private String unidadMedida;
 
+    /** Cuánto hay hoy. Se actualiza al confirmar una conciliación (CU-01-HU-02). */
     @Column(name = "existencia_actual", nullable = false, precision = 12, scale = 3)
     private BigDecimal existenciaActual = BigDecimal.ZERO;
 
+    /** Borrado lógico: un artículo inactivo no aparece en conciliación ni en alertas. */
     @Column(name = "activo", nullable = false)
     private Boolean activo = Boolean.TRUE;
 
+    /** Constructor vacío que exige JPA. */
     public Articulo() {
     }
+
+    // Getters y setters.
 
     public Long getId() {
         return id;

@@ -12,6 +12,7 @@ public class CalculadoraAlerta {
     // límite de días de cobertura por debajo del cual un insumo en alerta es crítico
     private final BigDecimal limiteDiasCritico;
 
+    // Si no se configura el límite, se usa 1 día.
     public CalculadoraAlerta(BigDecimal limiteDiasCritico) {
         this.limiteDiasCritico = (limiteDiasCritico == null) ? BigDecimal.ONE : limiteDiasCritico;
     }
@@ -38,13 +39,17 @@ public class CalculadoraAlerta {
         return existenciaEfectiva(existencia).divide(consumoDiario, 2, RoundingMode.HALF_UP);
     }
 
+    // NORMAL si no hay umbral o la existencia lo supera; CRITICO si no queda nada o la
+    // cobertura es menor al límite de días; si no, ALERTA.
     public NivelAlerta calcularNivel(DatosInsumo datos) {
         if (!tieneUmbral(datos.umbral())) {
             return NivelAlerta.NORMAL;
         }
         BigDecimal existencia = existenciaEfectiva(datos.existencia());
 
-        // TODO-COMENTARIO: explica por qué se usa compareTo y no equals con BigDecimal
+        // compareTo y no equals: con BigDecimal, equals también compara la escala
+        // (10.0 no es equals a 10.000). compareTo solo compara el valor: devuelve
+        // negativo, 0 o positivo, y "<= 0" significa "menor o igual".
         boolean enAlerta = existencia.compareTo(datos.umbral()) <= 0;
         if (!enAlerta) {
             return NivelAlerta.NORMAL;
@@ -53,7 +58,9 @@ public class CalculadoraAlerta {
             return NivelAlerta.CRITICO;
         }
 
-        // TODO-COMENTARIO: explica por qué se compara la cobertura ya redondeada con "<" estricto
+        // Se compara la cobertura ya redondeada (2 decimales), que es la que ve el usuario:
+        // si la pantalla dice "1.00 días", no puede salir crítico. "<" estricto: tener
+        // exactamente el límite (1.00) es ALERTA, no CRITICO.
         BigDecimal cobertura = calcularCobertura(existencia, datos.consumoDiario());
         if (cobertura != null && cobertura.compareTo(limiteDiasCritico) < 0) {
             return NivelAlerta.CRITICO;
