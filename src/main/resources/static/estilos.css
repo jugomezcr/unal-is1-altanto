@@ -1,0 +1,69 @@
+/*
+  Estilos de toda la aplicación. Spring sirve lo que está en src/main/resources/static/
+  tal cual: este archivo queda en http://localhost:8080/estilos.css.
+  Solo se estilan etiquetas HTML y tres clases (.error, .ok, .diferencia).
+*/
+
+body {
+    font-family: system-ui, sans-serif;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    color: #222;
+}
+
+header, footer {
+    padding: 1rem 0;
+    border-bottom: 1px solid #ccc;
+}
+
+footer {
+    border-top: 1px solid #ccc;
+    border-bottom: none;
+    margin-top: 2rem;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+nav a {
+    margin-right: 1rem;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+}
+
+th {
+    background: #f2f2f2;
+}
+
+input {
+    padding: 0.3rem;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+
+/* Mensajes: rojo para errores, verde para confirmaciones */
+.error {
+    color: #a00;
+}
+
+.ok {
+    color: #070;
+}
+
+/* Fila de un artículo que no cuadra (o insumo en alerta) */
+.diferencia {
+    background: #fdd;
+}
