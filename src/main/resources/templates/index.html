@@ -10,17 +10,17 @@
 
 <main>
     <!-- th:text reemplaza el texto de ejemplo por el valor que puso el controlador -->
-    <h1 th:text="${titulo}">Al-Tanto — Panadería Leonardo Betancur</h1>
+    <h1 th:text="${titulo}">Al-Tanto — Bread Station</h1>
     <p>
-        Control de inventario de la panadería: compara lo vendido (reporte Z) con lo contado
-        en bodega y nevera, y avisa cuándo pedir cada insumo.
+        Control de inventario: compara lo vendido con lo contado
+     en bodega y nevera, y avisa cuándo pedir cada insumo.
     </p>
 
-    <h2>Módulos del Sprint 1</h2>
+    <h2>Módulos</h2>
     <ul>
         <li><a th:href="@{/conciliacion}">Conciliación Diaria</a> (CU-01): digitar lo vendido y lo contado, ver diferencias y confirmar.</li>
         <li><a th:href="@{/inventario/alertas}">Inventario &amp; Alertas</a> (CU-02): insumos en su umbral mínimo o por debajo.</li>
-        <li><a th:href="@{/produccion/tandas}">Registro de Producción</a> (CU-03): en construcción.</li>
+        <li><a th:href="@{/produccion/tandas}">Registro de Producción</a> (CU-03): registrar una tanda, descontar los insumos gastados y avisar si alguno no alcanza.</li>
     </ul>
 </main>
 

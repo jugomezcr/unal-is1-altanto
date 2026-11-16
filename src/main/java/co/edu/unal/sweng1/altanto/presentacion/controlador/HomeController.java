@@ -17,7 +17,7 @@ public class HomeController {
 	/** GET / → {@code templates/index.html}, con el título en {@code ${titulo}}. */
 	@GetMapping("/")
 	public String index(Model model) {
-		model.addAttribute("titulo", "Al-Tanto — Panadería Leonardo Betancur");
+		model.addAttribute("titulo", "Al-Tanto");
 		return "index";
 	}
 
