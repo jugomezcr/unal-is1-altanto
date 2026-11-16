@@ -70,7 +70,7 @@ El resultado esperado es `BUILD SUCCESS`.
 > y los [problemas frecuentes](docs/guia-de-ejecucion.md#problemas-frecuentes) están en
 > [`docs/guia-de-ejecucion.md`](docs/guia-de-ejecucion.md).
 
-## Estado del Sprint 1 (Hito 4)
+## Estado del Sprint 2
 
 | Historia | Descripción | Responsable | Estado |
 |:---|:---|:---|:---|
