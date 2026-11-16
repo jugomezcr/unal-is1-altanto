@@ -73,8 +73,20 @@ Aparece la página de inicio de Al-Tanto, con un módulo por cada caso de uso de
 8. Alertas (CU-02): en el menú, entre a **Alertas (CU-02)**. La harina aparece en alerta
    porque quedó por debajo de su umbral de 25 kg.
 
-> El módulo **CU-03** (tandas de producción) lo está construyendo su responsable.
-> Mientras tanto, su página muestra "en construcción".
+## Paso 4b. Probar el CU-03 Registrar una tanda (CU-03-HU-01 y CU-03-HU-02)
+
+1. En el menú, entre a **Producción (CU-03)**. También puede abrir
+   <http://localhost:8080/produccion/tandas>.
+2. Elija el producto **Pan Francés Tradicional**, digite la **harina pesada** (por ejemplo
+   `10`), las **unidades obtenidas** (por ejemplo `120`) y el **maestro panadero**.
+3. En **Insumos gastados**, digite la cantidad de cada insumo. Para ver el descuento, gaste
+   **10** de *Harina de Trigo Especial* (había 15 kg).
+4. Pulse **Registrar tanda**. Aparece el resumen con la tanda y los insumos descontados; la
+   harina queda en **5 kg**.
+5. Existencia insuficiente: registre otra tanda gastando **20** de harina (solo hay 15). El
+   sistema no registra la tanda y avisa que la harina no alcanza.
+
+> El detalle del módulo está en [docs/hito-5/produccion-cu03.md](hito-5/produccion-cu03.md).
 
 ## Paso 5 (opcional). Ver la base de datos
 
