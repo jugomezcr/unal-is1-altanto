@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<!--
+  CU-03: Resumen de una tanda ya registrada.
+  La pinta ProduccionController (GET /produccion/tandas/{id}). Datos del Model:
+   - tanda    : la cabecera (fecha, producto, harina, unidades, maestro, observaciones).
+   - detalles : una línea por insumo gastado.
+   - mensaje  : aviso de éxito tras registrar (flash attribute).
+-->
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Tanda registrada')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<main>
+    <h1>Tanda del <span th:text="${tanda.fecha}">2026-11-03</span></h1>
+
+    <p class="ok" th:if="${mensaje}" th:text="${mensaje}">Mensaje</p>
+
+    <p>
+        Producto: <strong th:text="${tanda.articuloProducto.nombre}">Pan Francés</strong>
+        · Harina pesada: <span th:text="${tanda.harinaBaseKg}">25</span> kg
+        · Unidades obtenidas: <span th:text="${tanda.unidadesObtenidas}">120</span>
+    </p>
+    <p>
+        Encargado de producción: <span th:text="${tanda.maestroPanadero}">Leonardo Betancur</span>
+    </p>
+    <p th:if="${tanda.observaciones}">
+        Observaciones: <span th:text="${tanda.observaciones}"></span>
+    </p>
+
+    <h2>Insumos gastados y descontados</h2>
+    <table>
+        <tr>
+            <th>Insumo</th>
+            <th>Unidad</th>
+            <th>Cantidad descontada</th>
+        </tr>
+        <tr th:each="d : ${detalles}">
+            <td th:text="${d.insumo.nombre}">Harina de Trigo Especial</td>
+            <td th:text="${d.insumo.unidadMedida}">KILOGRAMO</td>
+            <td th:text="${d.cantidadConsumida}">25</td>
+        </tr>
+    </table>
+
+    <p><a th:href="@{/produccion/tandas}">Registrar otra tanda</a></p>
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

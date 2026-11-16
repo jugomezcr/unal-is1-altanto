@@ -1,16 +1,101 @@
 <!DOCTYPE html>
 <!--
-  CU-03: página provisional. La pinta HomeController (GET /produccion/tandas).
-  CU-03-HU-01 la reemplaza con el formulario real y su propio controlador.
+  CU-03-HU-01 y HU-02: Registrar una tanda de producción.
+  La pinta ProduccionController (GET y POST /produccion/tandas). Datos del Model:
+   - form      : TandaForm (fecha, producto, harina, unidades, maestro, observaciones
+                 y una línea por insumo gastado).
+   - productos : lista de artículos PRODUCTO_ELABORADO para el combo "¿qué se horneó?".
+   - error     : mensaje de una regla de negocio (p. ej. un insumo que no alcanza).
+
+  Cómo viajan los datos: cada <input name="..."> llama al setter con ese nombre.
+  name="lineas[0].cantidad" → form.getLineas().get(0).setCantidad(...).
+  th:name / th:value arman el name y el value con Thymeleaf (|...| = texto con variables).
 -->
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Registro de tanda')}"></head>
+<head th:replace="~{fragments/layout :: head('Registrar tanda')}"></head>
 <body>
 <div th:replace="~{fragments/layout :: navbar}"></div>
 
 <main>
-    <h1>Registrar tanda de producción (CU-03)</h1>
-    <p>Módulo en construcción para el Sprint 1.</p>
+    <h1>Registrar tanda de producción</h1>
+
+    <!-- th:if: la etiqueta solo se pinta si la condición es verdadera -->
+    <p class="error" th:if="${error}" th:text="${error}">Error</p>
+
+    <!-- th:object: el formulario trabaja sobre ${form}. #fields revisa sus errores de validación. -->
+    <form th:action="@{/produccion/tandas}" th:object="${form}" method="post">
+        <p class="error" th:if="${#fields.hasErrors('*')}">
+            Revise el formulario: la fecha, el producto, la harina, las unidades, el maestro
+            panadero y las cantidades son obligatorios y no pueden ser negativos.
+        </p>
+
+        <p>
+            <label>Fecha <input type="date" name="fecha" th:value="${form.fecha}"></label>
+        </p>
+        <p>
+            <label>Producto horneado
+                <select name="articuloProductoId">
+                    <option value="">— Elija el producto —</option>
+                    <!-- th:selected deja marcado el producto elegido si hay que volver a pintar -->
+                    <option th:each="p : ${productos}"
+                            th:value="${p.id}"
+                            th:text="${p.nombre}"
+                            th:selected="${p.id == form.articuloProductoId}">Pan Francés</option>
+                </select>
+            </label>
+        </p>
+        <p>
+            <label>Harina pesada (kg) — para el rendimiento
+                <input type="number" step="0.01" min="0" name="harinaBaseKg" th:value="${form.harinaBaseKg}">
+            </label>
+            <br>
+            <small>Este dato es informativo (base del rendimiento de la tanda). Para que la
+                harina se descuente del inventario, regístrela también en la lista de
+                insumos gastados.</small>
+        </p>
+        <p>
+            <label>Unidades obtenidas
+                <input type="number" step="1" min="0" name="unidadesObtenidas" th:value="${form.unidadesObtenidas}">
+            </label>
+        </p>
+        <p>
+            <label>Encargado de producción
+                <input type="text" name="maestroPanadero" th:value="${form.maestroPanadero}">
+            </label>
+        </p>
+        <p>
+            <label>Observaciones
+                <input type="text" name="observaciones" th:value="${form.observaciones}">
+            </label>
+        </p>
+
+        <h2>Insumos gastados</h2>
+        <table>
+            <tr>
+                <th>Insumo</th>
+                <th>Unidad</th>
+                <th>Cantidad gastada</th>
+            </tr>
+            <!-- th:each repite la fila por cada línea; i.index es la posición (0, 1, 2...) -->
+            <tr th:each="linea, i : ${form.lineas}">
+                <td>
+                    <span th:text="${linea.nombre}">Harina</span>
+                    <!-- Campos ocultos: si hay un error, la fila se vuelve a pintar con estos datos -->
+                    <input type="hidden" th:name="|lineas[${i.index}].insumoId|" th:value="${linea.insumoId}">
+                    <input type="hidden" th:name="|lineas[${i.index}].nombre|" th:value="${linea.nombre}">
+                    <input type="hidden" th:name="|lineas[${i.index}].unidadMedida|" th:value="${linea.unidadMedida}">
+                </td>
+                <td th:text="${linea.unidadMedida}">KILOGRAMO</td>
+                <td>
+                    <input type="number" step="0.001" min="0"
+                           th:name="|lineas[${i.index}].cantidad|" th:value="${linea.cantidad}">
+                </td>
+            </tr>
+        </table>
+
+        <button type="submit">Registrar tanda</button>
+        <a th:href="@{/}">Cancelar</a>
+    </form>
 </main>
 
 <div th:replace="~{fragments/layout :: footer}"></div>

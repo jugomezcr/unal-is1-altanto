@@ -70,14 +70,15 @@ El resultado esperado es `BUILD SUCCESS`.
 > y los [problemas frecuentes](docs/guia-de-ejecucion.md#problemas-frecuentes) están en
 > [`docs/guia-de-ejecucion.md`](docs/guia-de-ejecucion.md).
 
-## Estado del Sprint 1 (Hito 4)
+## Estado del Sprint 2
 
 | Historia | Descripción | Responsable | Estado |
 |:---|:---|:---|:---|
 | [CU-01-HU-01](https://github.com/jugomezcr/unal-is1-altanto/issues/2) | Digitar lo vendido y lo contado del día | Juan Pablo Gómez | **Implementada** |
 | [CU-01-HU-02](https://github.com/jugomezcr/unal-is1-altanto/issues/3) | Ver las diferencias y confirmar la conciliación | Juan Pablo Gómez | **Implementada** |
 | [CU-02-HU-01](https://github.com/jugomezcr/unal-is1-altanto/issues/5) | Ver los insumos en alerta | Pedro Correa | Pendiente |
-| [CU-03-HU-01](https://github.com/jugomezcr/unal-is1-altanto/issues/8) | Registrar la harina pesada, las unidades obtenidas y los insumos gastados | Brayan Nikolás Gallo | En desarrollo |
+| [CU-03-HU-01](https://github.com/jugomezcr/unal-is1-altanto/issues/8) | Registrar la harina pesada, las unidades obtenidas y los insumos gastados | Leonardo Betancur Diaz | **Implementada** |
+| [CU-03-HU-02](https://github.com/jugomezcr/unal-is1-altanto/issues/9) | Descontar los insumos y avisar si no alcanzan | Leonardo Betancur Diaz| **Implementada** |
 
 El backlog completo (6 casos de uso y 12 historias) está en el
 [GitHub Project *Al-Tanto · Backlog*](https://github.com/users/jugomezcr/projects/2).
@@ -143,6 +144,7 @@ fiado, facturación electrónica, varias sucursales y usuarios adicionales.
 | 2 | Especificación de requisitos | [Entrega 2 (PDF)](docs/hito-2/Proy.%20%20Altanto%20-%20Entrega%202.pdf) |
 | 3 | Diseño arquitectónico y detallado | [Entrega 3 (PDF)](docs/hito-3/Proy.%20Al%20tanto%20-%20Entrega%203.pdf) |
 | 4 | Primer incremento funcional | [Compromiso (PDF)](docs/hito-4/Proy.%20Al%20tanto%20-%20Entrega%204.pdf) · [Plan de trabajo (PDF)](docs/hito-4/Plan%20-%20Entrega%204.pdf) · [Plan y trazabilidad](docs/hito-4/plan-y-trazabilidad.md) · [Persistencia](docs/hito-4/persistencia-jpa-y-repositorios.md) · [CU-01 Conciliar el día](docs/hito-4/conciliacion-cu01.md) |
+| 5 | Segundo incremento funcional | [Planeación (PDF)](docs/hito-5/Entrega%205%20-%20Planeaci%C3%B3n.pdf) · [CU-03 Registrar una tanda](docs/hito-5/produccion-cu03.md) |
 
 ## Equipo Hefesto
 
