@@ -17,7 +17,7 @@
 <div th:replace="~{fragments/layout :: navbar}"></div>
 
 <main>
-    <h1>Registrar tanda de producción (CU-03)</h1>
+    <h1>Registrar tanda de producción</h1>
 
     <!-- th:if: la etiqueta solo se pinta si la condición es verdadera -->
     <p class="error" th:if="${error}" th:text="${error}">Error</p>
@@ -45,9 +45,13 @@
             </label>
         </p>
         <p>
-            <label>Harina pesada (kg)
+            <label>Harina pesada (kg) — para el rendimiento
                 <input type="number" step="0.01" min="0" name="harinaBaseKg" th:value="${form.harinaBaseKg}">
             </label>
+            <br>
+            <small>Este dato es informativo (base del rendimiento de la tanda). Para que la
+                harina se descuente del inventario, regístrela también en la lista de
+                insumos gastados.</small>
         </p>
         <p>
             <label>Unidades obtenidas
@@ -55,7 +59,7 @@
             </label>
         </p>
         <p>
-            <label>Maestro panadero
+            <label>Encargado de producción
                 <input type="text" name="maestroPanadero" th:value="${form.maestroPanadero}">
             </label>
         </p>
