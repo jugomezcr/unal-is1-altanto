@@ -78,6 +78,7 @@ El resultado esperado es `BUILD SUCCESS`.
 | [CU-01-HU-02](https://github.com/jugomezcr/unal-is1-altanto/issues/3) | Ver las diferencias y confirmar la conciliación | Juan Pablo Gómez | **Implementada** |
 | [CU-02-HU-01](https://github.com/jugomezcr/unal-is1-altanto/issues/5) | Ver los insumos en alerta | Pedro Correa | Pendiente |
 | [CU-03-HU-01](https://github.com/jugomezcr/unal-is1-altanto/issues/8) | Registrar la harina pesada, las unidades obtenidas y los insumos gastados | Brayan Nikolás Gallo | En desarrollo |
+| [CU-04-HU-01](https://github.com/jugomezcr/unal-is1-altanto/issues/12) | Registrar las cantidades realmente recibidas de un pedido | Pedro Correa | En desarrollo |
 
 El backlog completo (6 casos de uso y 12 historias) está en el
 [GitHub Project *Al-Tanto · Backlog*](https://github.com/users/jugomezcr/projects/2).
