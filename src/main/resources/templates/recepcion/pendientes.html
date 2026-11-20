@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<!-- CU-04-HU-01: lista de pedidos que todavía pueden recibirse. -->
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Pedidos pendientes de recepción')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<main>
+    <h1>Pedidos pendientes de recepción</h1>
+    <p class="ok" th:if="${mensaje}" th:text="${mensaje}">Pedido recibido</p>
+    <p class="error" th:if="${error}" th:text="${error}">Error</p>
+
+    <table>
+        <tr>
+            <th>Pedido</th>
+            <th>Proveedor</th>
+            <th>Fecha del pedido</th>
+            <th></th>
+        </tr>
+        <tr th:each="pedido : ${pedidos}">
+            <td th:text="${pedido.id}">1</td>
+            <td th:text="${pedido.proveedor.razonSocial}">Proveedor</td>
+            <td th:text="${pedido.fechaPedido}">2026-11-20</td>
+            <td>
+                <a th:href="@{/recepcion-pedidos/{id}(id=${pedido.id})}">Recibir pedido</a>
+            </td>
+        </tr>
+    </table>
+    <p th:if="${pedidos.isEmpty()}">No hay pedidos pendientes de recepción.</p>
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

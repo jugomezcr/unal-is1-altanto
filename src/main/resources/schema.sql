@@ -19,6 +19,8 @@ CREATE SEQUENCE IF NOT EXISTS detalle_conciliacion_seq START WITH 100;
 CREATE SEQUENCE IF NOT EXISTS alerta_seq START WITH 100;
 CREATE SEQUENCE IF NOT EXISTS tanda_seq START WITH 100;
 CREATE SEQUENCE IF NOT EXISTS detalle_tanda_seq START WITH 100;
+CREATE SEQUENCE IF NOT EXISTS pedido_seq START WITH 100;
+CREATE SEQUENCE IF NOT EXISTS detalle_pedido_seq START WITH 100;
 
 -- 1. TABLA: PROVEEDORES
 -- Entidad: Proveedor
@@ -137,5 +139,33 @@ CREATE TABLE IF NOT EXISTS detalles_tanda_insumo (
     CONSTRAINT fk_dti_tanda FOREIGN KEY (tanda_id) 
         REFERENCES tandas_produccion (id) ON DELETE CASCADE,
     CONSTRAINT fk_dti_insumo FOREIGN KEY (insumo_id) 
+        REFERENCES articulos (id)
+);
+
+-- 10. TABLAS: PEDIDOS Y DETALLES DE PEDIDO (CU-04-HU-01)
+-- Las líneas repetidas para un artículo se conservan de forma independiente.
+CREATE TABLE IF NOT EXISTS pedidos (
+    id BIGINT PRIMARY KEY,
+    proveedor_id BIGINT NOT NULL,
+    estado VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE',
+    fecha_pedido DATE NOT NULL,
+    fecha_recepcion DATE,
+    version BIGINT NOT NULL DEFAULT 0,
+    CONSTRAINT ck_pedido_fecha_cierre CHECK (estado <> 'CERRADO' OR fecha_recepcion IS NOT NULL),
+    CONSTRAINT fk_pedido_proveedor FOREIGN KEY (proveedor_id)
+        REFERENCES proveedores (id)
+);
+
+CREATE TABLE IF NOT EXISTS detalles_pedido (
+    id BIGINT PRIMARY KEY,
+    pedido_id BIGINT NOT NULL,
+    articulo_id BIGINT NOT NULL,
+    cantidad_pedida NUMERIC(12, 3) NOT NULL,
+    cantidad_recibida NUMERIC(12, 3),
+    CONSTRAINT ck_det_pedido_cant_pedida CHECK (cantidad_pedida >= 0),
+    CONSTRAINT ck_det_pedido_cant_recibida CHECK (cantidad_recibida IS NULL OR cantidad_recibida >= 0),
+    CONSTRAINT fk_det_pedido_pedido FOREIGN KEY (pedido_id)
+        REFERENCES pedidos (id) ON DELETE CASCADE,
+    CONSTRAINT fk_det_pedido_articulo FOREIGN KEY (articulo_id)
         REFERENCES articulos (id)
 );
