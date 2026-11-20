@@ -79,6 +79,7 @@ El resultado esperado es `BUILD SUCCESS`.
 | [CU-02-HU-01](https://github.com/jugomezcr/unal-is1-altanto/issues/5) | Ver los insumos en alerta | Pedro Correa | Pendiente |
 | [CU-03-HU-01](https://github.com/jugomezcr/unal-is1-altanto/issues/8) | Registrar la harina pesada, las unidades obtenidas y los insumos gastados | Leonardo Betancur Diaz | **Implementada** |
 | [CU-03-HU-02](https://github.com/jugomezcr/unal-is1-altanto/issues/9) | Descontar los insumos y avisar si no alcanzan | Leonardo Betancur Diaz| **Implementada** |
+| [CU-04-HU-01](https://github.com/jugomezcr/unal-is1-altanto/issues/11) | Registrar las cantidades realmente recibidas de un pedido | Pedro Correa | **Implementada** |
 
 El backlog completo (6 casos de uso y 12 historias) está en el
 [GitHub Project *Al-Tanto · Backlog*](https://github.com/users/jugomezcr/projects/2).
