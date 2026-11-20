@@ -102,3 +102,17 @@ SELECT * FROM (VALUES
 (4, 2, 4, 3.500)
 ) AS v (id, tanda_id, insumo_id, cantidad_consumida)
 WHERE NOT EXISTS (SELECT 1 FROM detalles_tanda_insumo);
+
+-- 10. PEDIDOS Y DETALLES DE PEDIDO (CU-04-HU-01)
+INSERT INTO pedidos (id, proveedor_id, estado, fecha_pedido, fecha_recepcion, version)
+SELECT * FROM (VALUES
+(1, 1, 'PENDIENTE', CURRENT_DATE, CAST(NULL AS DATE), 0)
+) AS v (id, proveedor_id, estado, fecha_pedido, fecha_recepcion, version)
+WHERE NOT EXISTS (SELECT 1 FROM pedidos);
+
+INSERT INTO detalles_pedido (id, pedido_id, articulo_id, cantidad_pedida, cantidad_recibida)
+SELECT * FROM (VALUES
+(1, 1, 1, 30.000, CAST(NULL AS NUMERIC(12, 3))),
+(2, 1, 1, 20.000, CAST(NULL AS NUMERIC(12, 3)))
+) AS v (id, pedido_id, articulo_id, cantidad_pedida, cantidad_recibida)
+WHERE NOT EXISTS (SELECT 1 FROM detalles_pedido);

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!-- CU-04-HU-01: captura la cantidad que se recibió por cada línea del pedido. -->
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Recibir pedido')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<main>
+    <h1>Recibir pedido <span th:text="${pedido.id}">1</span></h1>
+    <p>
+        Proveedor: <strong th:text="${pedido.proveedor.razonSocial}">Proveedor</strong>
+        · Fecha: <span th:text="${pedido.fechaPedido}">2026-11-20</span>
+    </p>
+
+    <form th:action="@{/recepcion-pedidos/{id}(id=${pedido.id})}"
+          th:object="${form}" method="post">
+        <p>Digite lo recibido por cada línea, aunque difiera de lo pedido. Puede registrar cero.</p>
+        <p class="error" th:if="${#fields.hasErrors('*')}">
+            Digite una cantidad recibida no negativa para cada línea (máximo 9 enteros y 3 decimales).
+        </p>
+        <table>
+            <tr>
+                <th>Artículo</th>
+                <th>Unidad</th>
+                <th>Cantidad pedida</th>
+                <th>Cantidad recibida</th>
+            </tr>
+            <tr th:each="detalle, i : ${detalles}">
+                <td th:text="${detalle.articulo.nombre}">Harina</td>
+                <td th:text="${detalle.articulo.unidadMedida}">KILOGRAMO</td>
+                <td th:text="${detalle.cantidadPedida}">30</td>
+                <td>
+                    <input type="hidden"
+                           th:field="*{lineas[__${i.index}__].detallePedidoId}">
+                    <input type="number" min="0" step="0.001" required
+                           th:field="*{lineas[__${i.index}__].cantidadRecibida}">
+                    <button type="button" data-igualar-cantidad
+                            th:attr="data-cantidad-pedida=${detalle.cantidadPedida}">
+                        Igualar a pedido
+                    </button>
+                </td>
+            </tr>
+        </table>
+
+        <button type="submit">Confirmar recepción</button>
+        <a th:href="@{/recepcion-pedidos/pendientes}">Cancelar</a>
+    </form>
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+<script>
+    document.querySelectorAll("[data-igualar-cantidad]").forEach((boton) => {
+        boton.addEventListener("click", () => {
+            const campo = boton.parentElement.querySelector('input[type="number"]');
+            campo.value = boton.dataset.cantidadPedida;
+            campo.dispatchEvent(new Event("input", { bubbles: true }));
+            campo.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+    });
+</script>
+</body>
+</html>
