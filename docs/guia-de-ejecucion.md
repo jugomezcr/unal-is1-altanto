@@ -70,8 +70,10 @@ Aparece la página de inicio de Al-Tanto, con un módulo por cada caso de uso de
    <http://localhost:8080/conciliacion/historial>). Aparecen todas las conciliaciones, de
    la más reciente a la más antigua: la de hoy (CONFIRMADA), la del 02/11/2026 (BORRADOR) y
    la del 01/11/2026 (CONFIRMADA). Con **Ver diferencias** se abre la tabla de cualquiera.
-8. Alertas (CU-02): en el menú, entre a **Alertas (CU-02)**. La harina aparece en alerta
+8. Alertas (CU-02): en el menú, entre a **Alertas**. La harina aparece en alerta
    porque quedó por debajo de su umbral de 25 kg.
+
+> El detalle del módulo de alertas está en [docs/hito-4/alertas-cu02.md](hito-4/alertas-cu02.md).
 
 ## Paso 4b. Probar el CU-03 Registrar una tanda (CU-03-HU-01 y CU-03-HU-02)
 
@@ -87,6 +89,17 @@ Aparece la página de inicio de Al-Tanto, con un módulo por cada caso de uso de
    sistema no registra la tanda y avisa que la harina no alcanza.
 
 > El detalle del módulo está en [docs/hito-5/produccion-cu03.md](hito-5/produccion-cu03.md).
+
+## Paso 4c. Probar el CU-04 Recibir pedido (CU-04-HU-01)
+
+1. En el menú, entre a **Recepción**. También puede abrir
+   <http://localhost:8080/recepcion-pedidos/pendientes>.
+2. En la tabla de pedidos pendientes, pulse **Recibir pedido** en el pedido #1 (de *Harinera del Valle S.A.*).
+3. Aparece el formulario con las líneas del pedido. Puede digitar las cantidades recibidas, usar el botón **Igualar a pedido** o ingresar cero (`0`).
+4. Pulse **Confirmar recepción**. El pedido queda cerrado con la fecha actual y las existencias en inventario suben con lo recibido.
+5. Doble recepción: si intenta ingresar de nuevo a <http://localhost:8080/recepcion-pedidos/1>, el sistema rechaza la operación informando que el pedido ya fue recibido.
+
+> El detalle del módulo está en [docs/hito-5/recepcion-pedidos-cu04.md](hito-5/recepcion-pedidos-cu04.md).
 
 ## Paso 5 (opcional). Ver la base de datos
 
