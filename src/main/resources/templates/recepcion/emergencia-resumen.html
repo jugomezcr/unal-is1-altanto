@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<!--
+  CU-04-HU-02: compra de emergencia ya registrada. La pinta CompraEmergenciaController
+  (GET /recepcion-pedidos/emergencia/{id}). Datos del Model: compra y, tras confirmar,
+  mensaje (flash attribute: vive solo una petición, la de la redirección).
+-->
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Compra de emergencia registrada')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<main>
+    <h1>Compra de emergencia <span th:text="${compra.id}">1</span></h1>
+    <p class="ok" th:if="${mensaje}" th:text="${mensaje}">Mensaje</p>
+
+    <table>
+        <tr><th>Fecha</th><td th:text="${compra.fecha}">2026-11-23</td></tr>
+        <tr><th>Artículo</th><td th:text="${compra.articulo.nombre}">Harina</td></tr>
+        <tr><th>Cantidad recibida</th>
+            <td><span th:text="${compra.cantidadRecibida}">10</span> <span th:text="${compra.articulo.unidadMedida}">KILOGRAMO</span></td></tr>
+        <tr><th>Precio pagado (por unidad)</th><td th:text="${compra.precioPagado}">4000.00</td></tr>
+        <tr><th>Precio habitual (por unidad)</th><td th:text="${compra.precioHabitual}">3200.00</td></tr>
+        <tr><th>Sobrecosto en pesos</th>
+            <td><span class="diferencia" th:text="${compra.sobrecostoPesos}">8000.00</span></td></tr>
+        <tr><th>Sobrecosto en porcentaje</th>
+            <td><span class="diferencia" th:text="|${compra.sobrecostoPorcentaje} %|">25.00 %</span></td></tr>
+        <tr><th>Existencia actual del artículo</th>
+            <td th:text="${compra.articulo.existenciaActual}">25.000</td></tr>
+    </table>
+
+    <p>
+        <a th:href="@{/recepcion-pedidos/emergencia}">Registrar otra compra de emergencia</a> ·
+        <a th:href="@{/}">Volver al inicio</a>
+    </p>
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

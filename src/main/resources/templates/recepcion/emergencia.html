@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<!--
+  CU-04-HU-02: formulario de compra de emergencia. Lo pinta CompraEmergenciaController.
+  Datos del Model: form (CompraEmergenciaForm), articulos (lista para el combo) y
+  error (mensaje de una regla de negocio). th:field enlaza cada campo con el form:
+  pone name, id y value (y conserva lo digitado si hay que volver a pintar).
+-->
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Compra de emergencia')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<main>
+    <h1>Compra de emergencia</h1>
+    <p>Digite lo que llegó y los dos precios <strong>por unidad</strong>: el que pagó y el
+        habitual del mayorista. Antes de confirmar verá cuánto más pagó.</p>
+
+    <p class="error" th:if="${error}" th:text="${error}">Error</p>
+
+    <form th:action="@{/recepcion-pedidos/emergencia/revisar}" th:object="${form}" method="post">
+        <p>
+            <label>Artículo
+                <select th:field="*{articuloId}">
+                    <option value="">— Elija el artículo —</option>
+                    <option th:each="a : ${articulos}" th:value="${a.id}"
+                            th:text="|${a.nombre} (${a.unidadMedida})|">Harina</option>
+                </select>
+            </label>
+            <small class="error" th:if="${#fields.hasErrors('articuloId')}" th:errors="*{articuloId}"></small>
+        </p>
+        <p>
+            <label>Cantidad recibida
+                <input type="number" step="0.001" min="0" th:field="*{cantidadRecibida}">
+            </label>
+            <small class="error" th:if="${#fields.hasErrors('cantidadRecibida')}" th:errors="*{cantidadRecibida}"></small>
+        </p>
+        <p>
+            <label>Precio pagado por unidad ($)
+                <input type="number" step="0.01" min="0" th:field="*{precioPagado}">
+            </label>
+            <small class="error" th:if="${#fields.hasErrors('precioPagado')}" th:errors="*{precioPagado}"></small>
+        </p>
+        <p>
+            <label>Precio habitual del mayorista por unidad ($)
+                <input type="number" step="0.01" min="0" th:field="*{precioHabitual}">
+            </label>
+            <small class="error" th:if="${#fields.hasErrors('precioHabitual')}" th:errors="*{precioHabitual}"></small>
+        </p>
+
+        <button type="submit">Ver sobrecosto</button>
+        <a th:href="@{/}">Cancelar</a>
+    </form>
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

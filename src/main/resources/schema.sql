@@ -21,6 +21,7 @@ CREATE SEQUENCE IF NOT EXISTS tanda_seq START WITH 100;
 CREATE SEQUENCE IF NOT EXISTS detalle_tanda_seq START WITH 100;
 CREATE SEQUENCE IF NOT EXISTS pedido_seq START WITH 100;
 CREATE SEQUENCE IF NOT EXISTS detalle_pedido_seq START WITH 100;
+CREATE SEQUENCE IF NOT EXISTS compra_emergencia_seq START WITH 100;
 
 -- 1. TABLA: PROVEEDORES
 -- Entidad: Proveedor
@@ -138,7 +139,7 @@ CREATE TABLE IF NOT EXISTS detalles_tanda_insumo (
     cantidad_consumida NUMERIC(10, 3) NOT NULL,
     CONSTRAINT fk_dti_tanda FOREIGN KEY (tanda_id) 
         REFERENCES tandas_produccion (id) ON DELETE CASCADE,
-    CONSTRAINT fk_dti_insumo FOREIGN KEY (insumo_id) 
+    CONSTRAINT fk_dti_insumo FOREIGN KEY (insumo_id)
         REFERENCES articulos (id)
 );
 
@@ -167,5 +168,23 @@ CREATE TABLE IF NOT EXISTS detalles_pedido (
     CONSTRAINT fk_det_pedido_pedido FOREIGN KEY (pedido_id)
         REFERENCES pedidos (id) ON DELETE CASCADE,
     CONSTRAINT fk_det_pedido_articulo FOREIGN KEY (articulo_id)
+        REFERENCES articulos (id)
+);
+
+-- 11. TABLA: COMPRAS_EMERGENCIA (CU-04-HU-02)
+-- Entidad: CompraEmergencia. Una compra = un artículo. Los precios son POR UNIDAD de
+-- inventario. El sobrecosto (en pesos y en %) se guarda calculado: es lo que marca la compra.
+CREATE TABLE IF NOT EXISTS compras_emergencia (
+    id BIGINT PRIMARY KEY,
+    fecha DATE NOT NULL,
+    articulo_id BIGINT NOT NULL,
+    cantidad_recibida NUMERIC(12, 3) NOT NULL,
+    precio_pagado NUMERIC(12, 2) NOT NULL,
+    precio_habitual NUMERIC(12, 2) NOT NULL,
+    sobrecosto_pesos NUMERIC(18, 2) NOT NULL,
+    sobrecosto_porcentaje NUMERIC(16, 2) NOT NULL,
+    CONSTRAINT ck_compra_em_cantidad CHECK (cantidad_recibida > 0),
+    CONSTRAINT ck_compra_em_precios CHECK (precio_pagado > 0 AND precio_habitual > 0),
+    CONSTRAINT fk_compra_em_articulo FOREIGN KEY (articulo_id)
         REFERENCES articulos (id)
 );
