@@ -1,7 +1,7 @@
 # CU-04-HU-02: Registrar una compra de emergencia y ver su sobrecosto
 
-Issue #12 (épica #10) · Se apoya en [recepcion-pedidos-cu04.md](recepcion-pedidos-cu04.md)
-(HU-01), que ya trae el menú **Recepción (CU-04)**.
+Issue #12 (épica #10) · Responsable: Juan Pablo Gómez. Es independiente de CU-04-HU-01
+(recepción de un pedido): comparte con ella solo la URL base `/recepcion-pedidos`.
 
 ## 1. Qué hace
 
@@ -13,7 +13,7 @@ marcada con su sobrecosto.
 ## 2. Flujo
 
 ```
-GET  /recepcion-pedidos/emergencia          → formulario (también desde "Pedidos pendientes")
+GET  /recepcion-pedidos/emergencia          → formulario (menú "Compra de emergencia")
 POST /recepcion-pedidos/emergencia/revisar  → valida y muestra la diferencia. NO guarda
 POST /recepcion-pedidos/emergencia          → confirma: guarda la compra y suma existencias
 GET  /recepcion-pedidos/emergencia/{id}     → resumen con el sobrecosto
@@ -70,6 +70,6 @@ Cancelar es un enlace: no envía nada, por eso no se guarda nada.
 ```
 
 Prueba manual: ver el paso 4c de [guia-de-ejecucion.md](../guia-de-ejecucion.md). Con
-*Harina de Trigo Especial*, cantidad `20`, precio pagado `4000` y habitual `3200`, la
-diferencia es **16000.00** pesos y **25.00 %**; al confirmar, la existencia sube 20 kg.
+*Harina de Trigo Especial*, cantidad `40`, precio pagado `4000` y habitual `3200`, la
+diferencia es **32000.00** pesos y **25.00 %**; al confirmar, la existencia sube 40 kg.
 Las pruebas automáticas usan 10 kg (8000.00 y 25.00 %) sobre los 15 kg de `data.sql`.

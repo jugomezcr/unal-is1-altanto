@@ -80,6 +80,7 @@ El resultado esperado es `BUILD SUCCESS`.
 | [CU-03-HU-01](https://github.com/jugomezcr/unal-is1-altanto/issues/8) | Registrar la harina pesada, las unidades obtenidas y los insumos gastados | Leonardo Betancur Diaz | **Implementada** |
 | [CU-03-HU-02](https://github.com/jugomezcr/unal-is1-altanto/issues/9) | Descontar los insumos y avisar si no alcanzan | Leonardo Betancur Diaz| **Implementada** |
 | [CU-04-HU-01](https://github.com/jugomezcr/unal-is1-altanto/issues/11) | Registrar las cantidades realmente recibidas de un pedido | Pedro Correa | **Implementada** |
+| [CU-04-HU-02](https://github.com/jugomezcr/unal-is1-altanto/issues/12) | Registrar una compra de emergencia y ver su sobrecosto | Juan Pablo Gómez | **Implementada** ([doc](docs/hito-5/compra-emergencia-cu04-hu02.md)) |
 
 El backlog completo (6 casos de uso y 12 historias) está en el
 [GitHub Project *Al-Tanto · Backlog*](https://github.com/users/jugomezcr/projects/2).
@@ -145,7 +146,7 @@ fiado, facturación electrónica, varias sucursales y usuarios adicionales.
 | 2 | Especificación de requisitos | [Entrega 2 (PDF)](docs/hito-2/Proy.%20%20Altanto%20-%20Entrega%202.pdf) |
 | 3 | Diseño arquitectónico y detallado | [Entrega 3 (PDF)](docs/hito-3/Proy.%20Al%20tanto%20-%20Entrega%203.pdf) |
 | 4 | Primer incremento funcional | [Compromiso (PDF)](docs/hito-4/Proy.%20Al%20tanto%20-%20Entrega%204.pdf) · [Plan de trabajo (PDF)](docs/hito-4/Plan%20-%20Entrega%204.pdf) · [Plan y trazabilidad](docs/hito-4/plan-y-trazabilidad.md) · [Persistencia](docs/hito-4/persistencia-jpa-y-repositorios.md) · [CU-01 Conciliar el día](docs/hito-4/conciliacion-cu01.md) · [CU-02 Alertas de reabastecimiento](docs/hito-4/alertas-cu02.md) |
-| 5 | Segundo incremento funcional | [Planeación (PDF)](docs/hito-5/Entrega%205%20-%20Planeaci%C3%B3n.pdf) · [CU-03 Registrar una tanda](docs/hito-5/produccion-cu03.md) · [CU-04 Recibir pedido](docs/hito-5/recepcion-pedidos-cu04.md) |
+| 5 | Segundo incremento funcional | [Planeación (PDF)](docs/hito-5/Entrega%205%20-%20Planeaci%C3%B3n.pdf) · [CU-03 Registrar una tanda](docs/hito-5/produccion-cu03.md) · [CU-04 Recibir pedido](docs/hito-5/recepcion-pedidos-cu04.md) · [CU-04 Compra de emergencia](docs/hito-5/compra-emergencia-cu04-hu02.md) |
 
 ## Equipo Hefesto
 
