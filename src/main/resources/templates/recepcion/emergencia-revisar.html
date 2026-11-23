@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<!--
+  CU-04-HU-02: muestra la diferencia y pide confirmar. Todavía no se guardó nada.
+  Datos del Model: form, articulo y sobrecosto (pesos y porcentaje). Los datos viajan
+  de vuelta en campos ocultos; el servicio recalcula el sobrecosto al confirmar.
+-->
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Confirmar compra de emergencia')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<main>
+    <h1>Confirmar compra de emergencia</h1>
+
+    <table>
+        <tr><th>Artículo</th><td th:text="${articulo.nombre}">Harina</td></tr>
+        <tr><th>Cantidad recibida</th>
+            <td><span th:text="${form.cantidadRecibida}">10</span> <span th:text="${articulo.unidadMedida}">KILOGRAMO</span></td></tr>
+        <tr><th>Precio pagado (por unidad)</th><td th:text="${form.precioPagado}">4000</td></tr>
+        <tr><th>Precio habitual (por unidad)</th><td th:text="${form.precioHabitual}">3200</td></tr>
+        <tr><th>Diferencia en pesos</th>
+            <td><span class="diferencia" th:text="${sobrecosto.pesos}">8000.00</span></td></tr>
+        <tr><th>Diferencia en porcentaje</th>
+            <td><span class="diferencia" th:text="|${sobrecosto.porcentaje} %|">25.00 %</span></td></tr>
+    </table>
+    <p>Al confirmar, las existencias de <strong th:text="${articulo.nombre}">Harina</strong>
+        suben en <span th:text="${form.cantidadRecibida}">10</span> y la compra queda marcada
+        con este sobrecosto.</p>
+
+    <form th:action="@{/recepcion-pedidos/emergencia}" method="post">
+        <input type="hidden" name="articuloId" th:value="${form.articuloId}">
+        <input type="hidden" name="cantidadRecibida" th:value="${form.cantidadRecibida}">
+        <input type="hidden" name="precioPagado" th:value="${form.precioPagado}">
+        <input type="hidden" name="precioHabitual" th:value="${form.precioHabitual}">
+        <button type="submit">Confirmar compra</button>
+        <a th:href="@{/recepcion-pedidos/emergencia}">Corregir</a>
+        <a th:href="@{/}">Cancelar</a>
+    </form>
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>
