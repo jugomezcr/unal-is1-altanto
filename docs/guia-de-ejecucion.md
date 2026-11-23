@@ -101,6 +101,20 @@ Aparece la página de inicio de Al-Tanto, con un módulo por cada caso de uso de
 
 > El detalle del módulo está en [docs/hito-5/recepcion-pedidos-cu04.md](hito-5/recepcion-pedidos-cu04.md).
 
+## Paso 4d. Probar la compra de emergencia (CU-04-HU-02)
+
+1. En el menú, entre a **Compra de emergencia**. También puede abrir
+   <http://localhost:8080/recepcion-pedidos/emergencia>.
+2. Elija **Harina de Trigo Especial**, cantidad recibida `40`, precio pagado `4000` y precio
+   habitual del mayorista `3200` (precios por kilogramo).
+3. Pulse **Ver sobrecosto**. Aparece la diferencia: **32000.00** pesos y **25.00 %**. Todavía
+   no se guardó nada: **Cancelar** descarta la compra.
+4. Pulse **Confirmar compra**. El resumen muestra el sobrecosto y la existencia de la harina
+   sube en 40 kg (siguiendo los pasos anteriores, pasa de 4 a **44 kg**).
+5. Entre a **Alertas**: la harina ya no aparece en alerta, porque supera su umbral de 25 kg.
+
+> Detalle en [docs/hito-5/compra-emergencia-cu04-hu02.md](hito-5/compra-emergencia-cu04-hu02.md).
+
 ## Paso 5 (opcional). Ver la base de datos
 
 1. Abra <http://localhost:8080/h2-console>.

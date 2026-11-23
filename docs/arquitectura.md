@@ -72,20 +72,25 @@ src/main/java/co/edu/unal/sweng1/altanto/
 │   │   ├── HomeController           GET /
 │   │   ├── ConciliacionController   CU-01: /conciliacion/...
 │   │   ├── InventarioAlertasController  CU-02: /inventario/alertas
-│   │   └── ProduccionController     CU-03: /produccion/tandas
+│   │   ├── ProduccionController     CU-03: /produccion/tandas
+│   │   └── CompraEmergenciaController   CU-04-HU-02: /recepcion-pedidos/emergencia
 │   └── formulario/                  Objetos que reciben un <form> y sus validaciones de formato
 │       ├── ConciliacionForm
-│       └── TandaForm                CU-03
+│       ├── TandaForm                CU-03
+│       └── CompraEmergenciaForm     CU-04-HU-02
 │
 ├── negocio/                         CAPA 2: las reglas (no sabe nada de HTML)
 │   ├── servicio/                    @Service: casos de uso, transacciones, reglas
 │   │   ├── ConciliacionService      CU-01-HU-01 y HU-02
 │   │   ├── AlertaInsumosService     CU-02-HU-01
 │   │   ├── TandaProduccionService   CU-03-HU-01 y HU-02
+│   │   ├── CompraEmergenciaService  CU-04-HU-02
 │   │   └── FuenteInsumos            interfaz: "de dónde salen los insumos"
 │   ├── calculo/                     Cálculos puros: sin Spring, sin base de datos
-│   │   └── CalculadoraAlerta        nivel, déficit y cobertura de un insumo
+│   │   ├── CalculadoraAlerta        nivel, déficit y cobertura de un insumo
+│   │   └── CalculadoraSobrecosto    diferencia en pesos y % de una compra de emergencia
 │   ├── dto/                         records: datos que viajan entre capas
+│   │   ├── Sobrecosto               calculadora → pantalla (CU-04-HU-02)
 │   │   ├── ConteoArticulo           formulario → servicio (CU-01)
 │   │   ├── InsumoGastado            formulario → servicio (CU-03)
 │   │   ├── DatosInsumo              consulta → calculadora (CU-02)
@@ -94,18 +99,21 @@ src/main/java/co/edu/unal/sweng1/altanto/
 │       ├── ReglaDeNegocioException  la base de todas
 │       ├── ConciliacionDuplicadaException
 │       ├── ConciliacionNoEncontradaException
-│       └── InsumoInsuficienteException  CU-03: un insumo no alcanza
+│       ├── InsumoInsuficienteException  CU-03: un insumo no alcanza
+│       └── CompraEmergenciaNoEncontradaException  CU-04-HU-02
 │
 └── persistencia/                    CAPA 3: la base de datos
     ├── entidad/                     @Entity: una clase = una tabla de schema.sql
     │   ├── Articulo, Proveedor, InsumoConfig
     │   ├── ConciliacionDiaria, DetalleConciliacion, EstadoConciliacion (CU-01)
-    │   └── TandaProduccion, DetalleTandaInsumo (CU-03)
+    │   ├── TandaProduccion, DetalleTandaInsumo (CU-03)
+    │   └── CompraEmergencia (CU-04-HU-02)
     └── repositorio/                 Interfaces de consultas (Spring las implementa)
         ├── InsumoRepository         tabla articulos
         ├── ConciliacionRepository, DetalleConciliacionRepository
         ├── InsumoConfigRepository
         ├── TandaProduccionRepository, DetalleTandaInsumoRepository  (CU-03)
+        ├── CompraEmergenciaRepository  (CU-04-HU-02)
         └── FuenteInsumosPersistencia   implementación real de FuenteInsumos
 
 src/main/resources/
@@ -316,6 +324,7 @@ existe, usa `1`. Es el `os.getenv("X", "1")` de Python.
 | `detalles_conciliacion` | `DetalleConciliacion` | `DetalleConciliacionRepository` | CU-01 |
 | `tandas_produccion` | `TandaProduccion` | `TandaProduccionRepository` | CU-03 |
 | `detalles_tanda_insumo` | `DetalleTandaInsumo` | `DetalleTandaInsumoRepository` | CU-03 |
+| `compras_emergencia` | `CompraEmergencia` | `CompraEmergenciaRepository` | CU-04-HU-02 |
 | `productos_venta_config`, `alertas_reabastecimiento` | — | — | Todavía no se usan |
 
 **Relaciones.** `@ManyToOne` + `@JoinColumn(name = "articulo_id")` hace que
